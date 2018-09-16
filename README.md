@@ -346,7 +346,7 @@ Copy the Code below to Twilio Functions
 
 1. Go back to Functions -> Manage Screen.
 
-    <kbd>
+    <kbd> 
       <img src="/media/Functions-Manage.png">
     </kbd>
 
