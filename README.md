@@ -455,7 +455,7 @@ Copy the Code below to Twilio Functions
     setting.Speak_Groups = ["C.A.B. Approval", "Cloud DevOps.", "Database Infrastructure"];
 ```   
     
-| __Integration URLS__           | [Get the xMatters Inbound Integration Endpoints](#get-the-xmatters-inbound-integration-endpoints)|
+| __Integration URLS__           |                                         |
 |--------------------------------|--------------------------------------------------------------------------------------------------|
 | setting.NumberofGroups         | The number of Groups listed in __setting.xMatters_Groups__                                  | 
 | setting.xMatters_Groups        | Listing of Group Names, exactly how they are configured in xMatters. You will be able to send the xMatters notifications to any of the groups listed here. You can have up to 9 groups. If you want to target multiple groups at the same time we suggest creating a group with child groups and targeting the parent group from this integration. You could also use xMatters userID's to target individuals. |   
@@ -471,8 +471,7 @@ Copy the Code below to Twilio Functions
 setting.bitly_token = 'scasoiueco23a432jcndl3s43a4cjdsalijfaweiud';
 ```
 ## Create a Bitly Account
-- Use your Bitly Access Token generated [here]](#create-a-bitly-account).
-
+- Use your Bitly Access Token generated [here](#create-a-bitly-account).
 
 
 <br><br>
