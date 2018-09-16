@@ -1,0 +1,152 @@
+var got = require('got');
+const request = require('request');  
+const util = require('util');  
+
+exports.handler = function(context, event, callback) {
+
+console.log("EVENT: " + JSON.stringify(event));
+var settings = JSON.parse(decodeURI(event.setting));
+console.log("EVENT: " + JSON.stringify(event));
+
+
+
+  let twiml = new Twilio.twiml.VoiceResponse();
+   
+  var url = "https://api.twilio.com/2010-04-01/Accounts/" + event.AccountSid + "/Recordings/" + event.RecordingSid  + "/Transcriptions.json";
+  console.log("url" + url);
+
+         got.get(url, {
+              headers: {
+                 'Authorization' : 'Basic QUMzZTgyOGZiOWE0Y2IxMzZkYzNiYWI0YjE1ZjRmNzYxNzpmNDI1MDRhY2JkNTNjNjNmYTI1OWNjNDljY2RhN2Y3MQ=='
+              }
+            })
+            .then(function(response) {  
+                
+              var json =  response.body; 
+              json =  JSON.parse(response.body);
+              console.log("Transcrition status: " +  json.transcriptions[0].status);
+                
+                  
+                if (json.transcriptions[0].status === "completed"){
+                   
+                      var xm_url = "";
+                                       
+                        if (event.what === 'Alert'){
+                         xm_url = settings.url_alert;
+                       // twiml.say({ voice: 'alice'}, settings.Alert_Phrase);
+                        }
+                       else if (event.what === 'Conference'){
+                         xm_url = settings.url_conf;
+                        //  twiml.say({ voice: 'alice'}, settings.Conference_Phrase);
+                        }
+                        
+                        
+                
+                        twiml.say({ voice: 'alice'}, settings.Wait_Phrase);
+                
+                // Add last parameters to event
+                event.transcriptionText = json.transcriptions[0].transcription_text;
+                event.transtatus = json.transcriptions[0].status;
+                
+                         got.post(xm_url, {
+                              body: JSON.stringify(event),
+                              headers: {
+                                'accept': 'application/json'
+                              },
+                              json: true
+                            })
+                            .then(function(response) {  
+                                
+                             twiml.say({ voice: 'alice'}, 'Sit back and relax, x matters is taking care of business. Goodbye.');
+                              callback(null, twiml);
+                              
+                            })
+                             .catch(function(error) {
+                              // Boo, there was an error.
+                                twiml.say({ voice: 'alice'}, 'Oops, something went wrong. The event has not been sent. You will need to send this event directly from x matters.');
+                              
+                              callback(error);
+                            });
+
+                   
+                    }
+                else if (json.transcriptions[0].status ===  "in-progress") {
+                   
+                   if (event.wait === undefined) {
+                   
+                   twiml.say({ voice: 'alice', loop: 1},'You had a lot to say, give me a few more moments.');
+                   twiml.pause({length: 5});
+                   twiml.redirect(settings.xm_message + '?setting=' +  encodeURI(JSON.stringify(settings)) + '&what=' + event.what + '&recipient=' + encodeURI(event.recipient) + '&RecordingUrl=' + event.RecordingUrl + '&shorturl=' + shorturl.link + '&Message_Phrase=' + encodeURI(event.Message_Phrase) + '&RecordingSid=' + event.RecordingSid + '&transtatus=' + json.transcriptions[0].status  + '&tranduration=' + json.transcriptions[0].duration + '&wait=' + 1);
+                                            
+                   callback(null, twiml);
+                   
+                   
+                   }
+                   else if (event.wait  === '1') {
+                
+                   twiml.say({ voice: 'alice', loop: 1},'Patients can be difficult but the rewards are great, your transcription is not quite finished yet.');
+                   twiml.pause({length: 5});
+                   twiml.redirect(settings.xm_message + '?setting=' +  encodeURI(JSON.stringify(settings)) + '&what=' + event.what + '&recipient=' + encodeURI(event.recipient) + '&RecordingUrl=' + event.RecordingUrl + '&shorturl=' + shorturl.link + '&Message_Phrase=' + encodeURI(event.Message_Phrase) + '&RecordingSid=' + event.RecordingSid + '&transtatus=' + json.transcriptions[0].status  + '&tranduration=' + json.transcriptions[0].duration + '&wait=' + 2);
+              
+                   callback(null, twiml);
+                       
+                   }
+                   else if (event.wait  === '2') {
+                       
+                   twiml.say({ voice: 'alice', loop: 1},'Maybe its time for a joke... Just kidding we will be done very soon.');
+                   twiml.pause({length: 5});
+                   twiml.redirect(settings.xm_message + '?setting=' +  encodeURI(JSON.stringify(settings)) + '&what=' + event.what + '&recipient=' + encodeURI(event.recipient) + '&RecordingUrl=' + event.RecordingUrl + '&shorturl=' + shorturl.link + '&Message_Phrase=' + encodeURI(event.Message_Phrase) + '&RecordingSid=' + event.RecordingSid + '&transtatus=' + json.transcriptions[0].status  + '&tranduration=' + json.transcriptions[0].duration + '&wait=' + 3);
+              
+                   callback(null, twiml);   
+                       
+                   }
+                   else if (event.wait  === '3') {
+                       
+                   twiml.say({ voice: 'alice', loop: 1},'You have been very patient i must say.');
+                   twiml.pause({length: 5});
+                   twiml.redirect(settings.xm_message + '?setting=' +  encodeURI(JSON.stringify(settings)) + '&what=' + event.what + '&recipient=' + encodeURI(event.recipient) + '&RecordingUrl=' + event.RecordingUrl + '&shorturl=' + shorturl.link + '&Message_Phrase=' + encodeURI(event.Message_Phrase) + '&RecordingSid=' + event.RecordingSid + '&transtatus=' + json.transcriptions[0].status  + '&tranduration=' + json.transcriptions[0].duration + '&wait=' + 4);
+              
+                   callback(null, twiml);
+                   
+                   }
+                   else if (event.wait  === '4') {
+                       
+                   twiml.say({ voice: 'alice', loop: 1},'I will be quiet now but im still working on it and will let you know as soon as its done.');
+                   twiml.pause({length: 5});
+                   twiml.redirect(settings.xm_message + '?setting=' +  encodeURI(JSON.stringify(settings)) + '&what=' + event.what + '&recipient=' + encodeURI(event.recipient) + '&RecordingUrl=' + event.RecordingUrl + '&shorturl=' + shorturl.link + '&Message_Phrase=' + encodeURI(event.Message_Phrase) + '&RecordingSid=' + event.RecordingSid + '&transtatus=' + json.transcriptions[0].status  + '&tranduration=' + json.transcriptions[0].duration + '&wait=' + 5);
+              
+                   callback(null, twiml); 
+                   
+                   } 
+                   else if (event.wait  === '5') {
+                       
+                   twiml.pause({length: 5});
+                   twiml.redirect(settings.xm_message + '?setting=' +  encodeURI(JSON.stringify(settings)) + '&what=' + event.what + '&recipient=' + encodeURI(event.recipient) + '&RecordingUrl=' + event.RecordingUrl + '&shorturl=' + shorturl.link + '&Message_Phrase=' + encodeURI(event.Message_Phrase) + '&RecordingSid=' + event.RecordingSid + '&transtatus=' + json.transcriptions[0].status  + '&tranduration=' + json.transcriptions[0].duration + '&wait=' + 5);
+              
+                   callback(null, twiml); 
+                   
+                   }
+                   
+               
+                }    
+                else if (json.transcriptions[0].status ===  "failed") {
+                      
+                   twiml.say({ voice: 'alice', loop: 1},'Im sorry, something went wrong transcribing your audio. We need to make the recording again.');   
+                   twiml.redirect(settings.xm_confirmRec + '?setting=' +  encodeURI(JSON.stringify(settings)) + '&what=' + event.what + '&recipient=' + encodeURI(event.recipient)+ '&Message_Phrase=' + encodeURI(event.Message_Phrase) + '&Digits=' + '00');
+                   
+                   callback(null, twiml); 
+                   
+                      
+                      
+                }
+               
+     
+            
+              }).catch(function (error) {
+                  // Handle error
+                  console.log("errors: " + error);
+       
+              });
+  
+ 
+}; // close handler

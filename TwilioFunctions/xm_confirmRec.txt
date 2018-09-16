@@ -1,0 +1,43 @@
+var got = require('got');
+const request = require('request');  
+const util = require('util');  
+
+exports.handler = function(context, event, callback) {
+
+// Get Settings
+var settings = JSON.parse(decodeURI(event.setting));
+console.log("EVENT: " + JSON.stringify(event));
+console.log("Settings: " + JSON.stringify(settings));
+console.log("EVENT DIGITS: " + event.Digits);
+console.log("Recipient Set: " + event.recipient);
+ 
+  let twiml = new Twilio.twiml.VoiceResponse();
+    
+    // Recording is good
+    if ( event.Digits === "1") {
+       console.log("Happy with Recording");
+  
+            twiml.say({ voice: 'alice', loop: 1},'Hang on a moment while I transcribe your audio.');
+            twiml.pause({length: 5});
+            twiml.redirect(settings.xm_shorten + '?setting=' +  encodeURI(JSON.stringify(settings)) + '&what=' + event.what + '&recipient=' + encodeURI(event.recipient) + '&RecordingUrl=' + event.RecordingUrl + '&Message_Phrase=' + encodeURI(event.Message_Phrase) + '&RecordingSid=' + event.RecordingSid);
+              
+            callback(null, twiml);
+               
+    }
+   else if (event.Digits !== "1"  && event.Digits !== undefined ) {
+           console.log("Not happy with recording");
+
+        // Skip failure message in the case that transcription failure. We pass 01 as digits before starting this funciton for only this special case.
+        if (event.Digits !== '00') {
+            twiml.say({ voice: 'alice', loop: 1},'Without failure, there is no achievement. Lets try again.');
+        }    
+            twiml.say({ voice: 'alice', loop: 1},'Record your message after the beep. Press 1 if its good, any other key to start over.');
+            twiml.record({ timeout: 0, transcribe: true, maxLength: 120, finishOnKey: '1234567890*#', action: settings.xm_confirmRec + '?setting=' +  encodeURI(JSON.stringify(settings)) + '&what=' + event.what + '&recipient=' + encodeURI(event.recipient) + '&Message_Phrase=' + encodeURI(event.Message_Phrase) });
+            
+            callback(null, twiml);
+
+        }
+ 
+  
+
+}; // close handler
