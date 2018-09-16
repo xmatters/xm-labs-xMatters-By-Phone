@@ -223,7 +223,7 @@ You will need this URL for both __On-Call Alert__ and  __On-Call Conference__.
 <br><br>
 ## Create a Bitly Account
 
-1. Go to Bitly.com and create a new account.
+1. Go to [Bitly.com](https://www.bitly.com) and create a new account.
 
 2. Hamburger Menu -> Your profile -> Generic Access Token
 
