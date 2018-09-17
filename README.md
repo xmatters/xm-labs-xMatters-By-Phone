@@ -1,5 +1,5 @@
 # Initial xMatters Event by Phone
-This integration will help you to initiate xMatters notifications by calling a Phone number. It allows you to record a message over the phone that will be transcribed and then sent as an xMatters notification.
+This integration will help you to initiate xMatters notifications by calling a Phone number. It allows you to select the type of notification, the group you want to target and record a message over the phone that will be transcribed, URL shortened and sent as an xMatters notification.
 
 <kbd>
   <img src="https://github.com/xmatters/xMatters-Labs/raw/master/media/disclaimer.png">
