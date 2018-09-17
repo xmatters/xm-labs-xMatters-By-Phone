@@ -558,7 +558,9 @@ CALL COMES IN [FUNCTION] [01-xMatters-Notify-Settings] Select function relating 
 <br><br>
 ## Test the Integration.
 
-1. Call your Twilio number ensure it works as expected.
+1. Call your Twilio number. 
+
+2. Test your configuration and all of the call prompts making sure it works as expected.
 
 
 
