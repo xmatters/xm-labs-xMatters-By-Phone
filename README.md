@@ -33,7 +33,7 @@ This integration will help you to initiate xMatters notifications by calling a P
 - You can predefine up to 9 xMatters groups that can be target with your notification. You can select the group you would like to target using xMatters from phone prompts.
 - The content of the message must be configured in the xMatters communication plan.
 
-## Audio Prompt Workflow
+## Integration Function Workflow
 
 1. User Calls Twilio Voice enabled phone number.
 
@@ -41,12 +41,12 @@ This integration will help you to initiate xMatters notifications by calling a P
 2. Twilio Function __xm_settings__ is initiated.
     - This file contains all the settings for the integration
     - Performs authentication based on the calling phone Caller ID.
-    - Phones that blocked / hide the Caller ID will not be able to use this integrations.
+    - Phones that block / hide the Caller ID will not be able to use this integrations.
 
 
 3. Twilio Function  __xm_action__ is initiated.
     - Prompts the user to create a regular xMatters Alert or an Alert with a Conference Bridge. 
-    - This sets a variable so _xm_message_ will send the event to the proper xMatters Inbound Integration url.
+    - This sets a variable so _xm_message_ will send the event to the proper xMatters Inbound Integration URL.
     - 1. __Alert__ -> __On-Call Alert__
     - 2. __Conference Bridge__ -> __On-Call Conference__
 
@@ -57,7 +57,9 @@ This integration will help you to initiate xMatters notifications by calling a P
 
 4. Twilio Function __xm_group__ is initiated.
    - Prompts the user to select a target group for the notification. 
-   - This step can be disabled and you can set default recipients in xMatters.
+   - Configure up to 9 groups as options in the prompts.
+   - This step can be disabled and you can set default recipients in xMatters instead.
+   - This step is disabled by setting zero groups in xm_settings.
 
   ```
   What group would you like to alert. Press 1 for xyz. Press 2 for jkl. Press 3 for mno.
@@ -74,7 +76,7 @@ This integration will help you to initiate xMatters notifications by calling a P
 
 
 6. Twilio Function __xm_confirm__ is initiated.
-    - Handles the case that user want to re-record the message. 
+    - Handles the case where user wants to re-record the message. 
     - Moves the script to the next function if the user is happy with the recording.
 
   ```
@@ -84,6 +86,7 @@ This integration will help you to initiate xMatters notifications by calling a P
 
 7. Twilio Function __xm_shorten__ is initiated.
     - Sends the recording URL to Bitly where the long form URL is shortened.
+    - If there is an error shortening the URL we will continue on using the long version of the URL.
 
   ```
   Long Recording URL:
@@ -96,17 +99,18 @@ This integration will help you to initiate xMatters notifications by calling a P
 
 8. Twilio Function __xm_message__ is initiated.
     - Plays some fun messages while we are waiting for the recording transcription to complete.
-    - This function continuesly loops checking the transcription status each time
+    - This function continuously loops checking the transcription status each time.
     - The time this step takes to complete will vary depending on the length of the recorded message.
     - When the transcription status changes to "completed" an API call to xMatters is made to initiate the new event.
-    - The user is notificed if the event was successfully created in xMatters or if there was a problem injecting the event.
+    - The user is notified if the event was successfully created in xMatters or if there was a problem injecting the event.
+    - Recordings / Transcriptions have a length limitation from 2 seconds up to 2 minutes.
 
 
 __Wait Messages__
 ```
 - Patients can be difficult but the rewards are great, your transcription is not quite finished yet.
-- Maybe its time for a joke... Just kidding we will be done very soon.
-- You have been very patient i must say.
+- Maybe it's time for a joke... Just kidding we will be done very soon.
+- You have been very patient I must say.
 - I will be quiet now but im still working on it and will let you know as soon as its done.
 ```
 
@@ -116,12 +120,11 @@ __Event Sent to xMatters__
   - Oops, something went wrong. The event has not been sent. You will need to send this event directly from xMatters.
   ```
 
+
 9. xMatters Inbound Integration Script.
 
-
-
     - This script gets the xMatters recipients out of the payload.
-    - This script add trasncription text to xMatters properties "Description" and "Short Description".
+    - This script adds trascription text to xMatters properties "Description" and "Short Description".
 
 
 
@@ -392,7 +395,7 @@ Copy the Code below to Twilio Functions
 
 | __xMatters Base URL__                              |                                                                             |
 |----------------------------------------------------|-----------------------------------------------------------------------------|
-| xmatters                                           | The base URL of your xMatters environemnt. Ex: https://company.xmatters.com | 
+| xmatters                                           | The base URL of your xMatters environment. Ex: https://company.xmatters.com | 
 | __xMatters WebService User name and password__     |                                                                             |
 | xm_user                                            | The username of the xMatters Twilio_API_User                                | 
 | xm_pass                                            | The password of the xMatters Twilio_API_User                                | 
@@ -427,7 +430,7 @@ Copy the Code below to Twilio Functions
     Authorized_Users = ['userid1', 'userid2', 'userid3'];
   ```   
 
-- This is a comma separated list of xMatters userID's. Each UserID must be in quotations and seperated by a comma.
+- This is a comma separated list of xMatters userID's. Each UserID must be in quotations and separated by a comma.
 - The integration will check if a user listed here has a Voice device in xMatters matching the caller ID of the person calling your Twilio number to initiate an xMatters event.
 - If the caller ID that is calling your Twilio number matches a voice device of a user in xMatters listed in the Authorized_Users array, the function will proceed.
 - If the caller ID that is calling your Twilio number does not match a voice device of a user in xMatters listed in the Authorized_Users array, the function will play a not authorized message and terminate the call.
@@ -458,7 +461,7 @@ Copy the Code below to Twilio Functions
 | __Integration URLS__           |                                         |
 |--------------------------------|--------------------------------------------------------------------------------------------------|
 | setting.NumberofGroups         | The number of Groups listed in __setting.xMatters_Groups__                                  | 
-| setting.xMatters_Groups        | Listing of Group Names, exactly how they are configured in xMatters. You will be able to send the xMatters notifications to any of the groups listed here. You can have up to 9 groups. If you want to target multiple groups at the same time we suggest creating a group with child groups and targeting the parent group from this integration. You could also use xMatters userID's to target individuals. |   
+| setting.xMatters_Groups        | Listing of Group Names, exactly how they are configured in xMatters. You will be able to send the xMatters notifications to any of the groups listed here. You can have up to 9 groups. If you want to target multiple groups at the same time we suggest creating a group with child groups and targeting the parent group from this integration. You could also use xMatters userID's to target individuals. If you dont want to use this option set it to setting.xMatters_Groups = []; Be sure to do the same for setting.Speak_Groups.|   
 | setting.Speak_Groups           | Your group names may not always be easy for the Twilio text-to-speech engine to read. This option lets you type your groups names in the same order as in __settings.xMatters_Groups__ but spell them in a way that the text-to-speech engine understands. You must have the same number of groups listed here in the same order as __settings.xMatters_Groups__. Failing to do so will cause unintended behaviours.            |
 
 
