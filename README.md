@@ -544,7 +544,7 @@ Once you have finished it should look like this:
 
 5. In the __Voice & Fax__ section configure what happens when a __Call Comes in__.
 
-CALL COMES IN [FUNCTION] [01-xMatters-Notify-Settings]
+CALL COMES IN [FUNCTION] [01-xMatters-Notify-Settings] Select function relating to xm_settings.
 
 ** If you named your functions differently that described in this integration __01-xMatters-Notify-Settings__ may be different. You want to select the function for xm_settings.
 
@@ -565,4 +565,14 @@ CALL COMES IN [FUNCTION] [01-xMatters-Notify-Settings]
 
 <br><br>
 # Troubleshooting
+If you call your Twilio voice number and hear "We are sorry but your application has an error" this is a problem with one of your Twilio functions or you have not configured your Twilio Voice number to call the __xm_settings__ function when a call comes in.
+
+Most of the issue you could encounter have to do with the configuration of the __xm_settings__ function in Twilio. 
+Use this Twilio resource for help with debugging functions:
+https://www.twilio.com/docs/runtime/functions/debugging
+
+Alternativiely, you can check the Inbound Integration Activity Log in xMatters:
+https://help.xmatters.com/ondemand/xmodwelcome/integrationbuilder/create-inbound-updates.htm
+
+
 
