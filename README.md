@@ -394,7 +394,7 @@ Copy the Code below to Twilio Functions
 
   ```
 
-| __xMatters Base URL and Webservice User__                                                                                        |
+| __xMatters Base URL and Webservice User__          |                                                                             |
 |----------------------------------------------------|-----------------------------------------------------------------------------|
 | xmatters                                           | The base URL of your xMatters environment. Example: https://company.xmatters.com | 
 | xm_user                                            | The username of the xMatters Twilio_API_User                                | 
