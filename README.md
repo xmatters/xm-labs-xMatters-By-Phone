@@ -14,10 +14,10 @@ This integration will help you to initiate xMatters notifications by calling a P
 
 # Files
 * [xm_settings](TwilioFunctions/xm_settings.txt)
-* [xm_action](TwilioFunctions/xm_actions.txt)
+* [xm_action](TwilioFunctions/xm_action.txt)
 * [xm_group](TwilioFunctions/xm_group.txt)
 * [xm_record](TwilioFunctions/xm_record.txt)
-* [xm_confirmRec](TwilioFunctions/xm_mconfirmRec.txt)
+* [xm_confirmRec](TwilioFunctions/xm_confirmRec.txt)
 * [xm_shorten](TwilioFunctions/xm_shorten.txt)
 * [xm_message](TwilioFunctions/xm_message.txt)
 
@@ -337,13 +337,12 @@ Appropriate Names and Paths can be found below.
 
 Copy the Code below to Twilio Functions
 * [xm_settings](TwilioFunctions/xm_settings.txt)
-* [xm_action](TwilioFunctions/xm_actions.txt)
+* [xm_action](TwilioFunctions/xm_action.txt)
 * [xm_group](TwilioFunctions/xm_group.txt)
 * [xm_record](TwilioFunctions/xm_record.txt)
-* [xm_confirmRec](TwilioFunctions/xm_mconfirmRec.txt)
+* [xm_confirmRec](TwilioFunctions/xm_confirmRec.txt)
 * [xm_shorten](TwilioFunctions/xm_shorten.txt)
 * [xm_message](TwilioFunctions/xm_message.txt)
-
 
 
 <br><br>
@@ -395,10 +394,9 @@ Copy the Code below to Twilio Functions
 
   ```
 
-| __xMatters Base URL__                              |                                                                             |
+| __xMatters Base URL and Webservice User__          |                                                                             |
 |----------------------------------------------------|-----------------------------------------------------------------------------|
 | xmatters                                           | The base URL of your xMatters environment. Ex: https://company.xmatters.com | 
-| __xMatters WebService User name and password__     |                                                                             |
 | xm_user                                            | The username of the xMatters Twilio_API_User                                | 
 | xm_pass                                            | The password of the xMatters Twilio_API_User                                | 
 
