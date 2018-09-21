@@ -8,7 +8,7 @@ This integration will help you to initiate xMatters notifications by calling a P
 # Pre-Requisites
 * Twilio account (https://www.twilio.com)
 * Twilio Phone number with Calling capabilities.
-* Bityl Account for shortening recording URLS.[get one](https://www.bitly.com).
+* Bitly Account for shortening recording URLS.[get one](https://www.bitly.com).
 * xMatters account - If you don't have one, [get one](https://www.xmatters.com)!
 
 
