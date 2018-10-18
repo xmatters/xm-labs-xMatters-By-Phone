@@ -8,7 +8,7 @@ This integration will help you to initiate xMatters notifications by calling a P
 # Pre-Requisites
 * Twilio account (https://www.twilio.com)
 * Twilio Phone number with Calling capabilities.
-* Bitly Account for shortening recording URLS.[get one](https://www.bitly.com).
+* Bitly Account for shortening recording URLS, [get one](https://www.bitly.com).
 * xMatters account - If you don't have one, [get one](https://www.xmatters.com)!
 
 
@@ -33,7 +33,9 @@ This integration will help you to initiate xMatters notifications by calling a P
 - The Twilio functions will provide telephone prompts to guide you through initiate an xMatters notification.
 - You can decide to send a regular xMatters Alert/Notification or an xMatters Conference Bridge.
 - You can predefine up to 9 xMatters groups that can be target with your notification. You can select the group you would like to target using xMatters from phone prompts.
-- The content of the message must be configured in the xMatters communication plan.
+- The URL to listen to your recorded message is shortened with Bitly to make it easier to send via sms.
+- Your recording will be transcribed and the transcription will be used for Email, SMS and Voice notifications.
+
 
 ## Integration Function Workflow
 
@@ -182,27 +184,6 @@ To import the communication plan:
 Repeat steps 6 to 9 for __On-Call Resource Conference__ form.
 
 __Special Note:__ The __Twilio_API_User__ will always initiate the xMatters event for this integration. A separate setting inside the Twilio __xm_settings__ function will control whether the calling phone/person is allowed to initiate an xMatters event using this integration.  Assuming the person is calling from a phone with a caller ID matching a user in xMatters and the xm_settings configuration, an event will be created by the __Twilio_API_User__.
-
-
-
-
-<br><br>
-## Configure the xMatters Message
-
-This integration will send a preconfigured message to the selected xMatters group. The _Alert_ and _Conference_ messages can be different from each other.
-You can change what this message is as follows:
-
-1. In the __Edit__ drop down list on the  _xMatters Initiate Event via Phone Call Communication Plan_ Click __Integration Builder__.
-2. On the Integration Builder tab, expand the list of inbound integrations.
-3. Click on either __On-Call Alert__ or __On-Call Conference__.
-4. Scroll to Step 5 and click __Open Script Editor__.
-5. Go to Line 65 and change the Description text.
-
-```
-trigger.properties.Description = 'THIS IS THE TEXT THAT YOU CAN CHANGE. DO NOT DELETE THE QUOTATION MARKES SURROUNDING THIS TEXT.';
-```
-
-6. Click __Save__.
 
 
 
