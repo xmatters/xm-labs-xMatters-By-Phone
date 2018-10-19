@@ -326,20 +326,19 @@ Copy the Code below to Twilio Functions
 * [xm_message](TwilioFunctions/xm_message.txt)
 
 
-11. Create a new Twilio API key
-
-Click on __API Keys__
+11. Create a new Twilio API key by clicking on __API Keys__
 
 <kbd>
-  <img src="/media/API-Key.png">
+  <img src="/media/API-Key.png" width="200px">
 </kbd>
 
-Click the + to add a new Key and give it an appropriate name, then hit Create Key. 
+12. Click the + to add a new Key and give it an appropriate name, then hit Create Key. 
 
 <kbd>
   <img src="/media/API-Key-Value.png" width="500px">
 </kbd>
-Copy the SID and Secret to a safe place, __this will be the only time the secret is shown__. 
+
+    Copy the SID and Secret to a safe place, __this will be the only time the secret is shown__. 
 
 <br><br>
 ## Configure Twilio "xm_settings" Functions
