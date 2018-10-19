@@ -338,7 +338,7 @@ Copy the Code below to Twilio Functions
   <img src="/media/API-Key-Value.png" width="500px">
 </kbd>
 
-    Copy the SID and Secret to a safe place, __this will be the only time the secret is shown__. 
+13. Copy the SID and Secret to a safe place, __this will be the only time the secret is shown__. 
 
 <br><br>
 ## Configure Twilio "xm_settings" Functions
