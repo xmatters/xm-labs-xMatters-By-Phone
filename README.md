@@ -329,8 +329,9 @@ Copy the Code below to Twilio Functions
 11. Create a new Twilio API key
 
 Click on __API Keys__
+
 <kbd>
-  <img src="/media/API-Key.png" width="500px">
+  <img src="/media/API-Key.png">
 </kbd>
 
 Click the + to add a new Key and give it an appropriate name, then hit Create Key. 
