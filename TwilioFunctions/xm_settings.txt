@@ -1,218 +1,222 @@
 var got = require('got');
-const request = require('request');  
-const util = require('util');  
+const request = require('request');
+const util = require('util');
 
 exports.handler = function(context, event, callback) {
- 
- 	console.log("EVENT: " + JSON.stringify(event));
 
+    console.log("EVENT1: " + JSON.stringify(event));
 
     //***************************************
     // CONFIGURATION
     //***************************************
     //
-    setting = {};
+    settings = {};
 
     // Twilio Function Paths
-    setting.twilio_path = 'https://halting-stocking-6134.twil.io';
+    settings.twilio_path = 'https://some-path-1234.twil.io';
 
 
     // xMatters Base URL
     // Do not include trailing slash
-    xmatters = 'https://mattsteele.cs1.xmatters.com';
-    
+    xmatters = 'https://acme.xmatters.com';
+
     // xMatters Webservice User name and password
-    xm_user = 'REST';
-    xm_pass = 'password';
+    xm_user = 'twiliouser';
+    xm_pass = 'mycomplexpassword';
+
+    // Twilio SID and Secret API key for authenticating
+    // into the Twilio API for transcription
+    settings.twilio_sid = 'LONG-SID-VALUE-HERE';
+    settings.twilio_sec = 'LONG-SECRET-HERE';
 
 
     // This is the Inbound Integration url for "On-Call Alert"
-    setting.url_alert = 'https://company.cs1.xmatters.com/api/integration/1/functions/29467509-4b76-b0af-c70585021d8e/triggers?apiKey=2675d2d5-4c37-987e-4e9549451662';
-    
+    settings.url_alert = 'https://acme.xmatters.com/api/integration/1/functions/UUID/triggers?apiKey=UUID-KEY-HERE';
+
     // This is the Inbound Integration url for "On-Call Conference Bridge"
-    setting.url_conf = 'https://company.cs1.xmatters.com/api/integration/1/functions/a77562ae-4e6d-b870-bda997117b5c/triggers?apiKey=f58a9959-4c8a-95ff-eec3c7443e2f';
-    
-    
+    settings.url_conf = 'https://acme.xmatters.com/api/integration/1/functions/UUID/triggers?apiKey=UUID-KEY-HERE';
+
+
     // List of xMatters users that are allowed to initiate this integration
     // The caller ID initiating this event must be a voice device listed on an xMatters user profile
-    Authorized_Users = ['User-ID-01', 'User-ID-02'];
-    
+
+    Authorized_Users = ['userid1', 'userid2', 'userid3'];
+
     // Set the number of groups you would like to be able to target from this integration.
     // The number set below must match the number of groups you have in the xMatters_Groups and Speak_Groups arrays below.
     // If you set this value to 0 you must add groups / users as default recipients in the xMatters form layout.
-    setting.NumberofGroups = 3;
-    
+    settings.NumberofGroups = 3;
+
     // Set the xMatters Group Names.
     // Group names must match the name of your xMatters groups exactly.
     // You can add additional Groups by adding parameters to the array below. 
     // This arry must have the same number of elements as the Speak_Group array below.
-    setting.xMatters_Groups = ["CAB Approval", "Cloud DevOps", "Database Infrastructure"];
-     
-   
+    settings.xMatters_Groups = ["Cloud DevOps", "CAB", "Database"];
+
+
     // Set the Twilio Group Name.
     // You can add additional punctuation, spaces, dashes, and upper case letters to group names to help the text to speach engine pronounce it better.
     // This arry must have the same number of elements as the xMatters_Groups array above.
-    setting.Speak_Groups = ["C.A.B. Approval", "Cloud DevOps.", "Database Infrastructure"];
-    
-    
+    settings.Speak_Groups = ["Cloud Dev Ops.", "C.A.B.", "Database"];
+
+
     // Bitley Access Token
-    setting.bitly_token = 'b58207fe58966c300b56bf58a';
+    settings.bitly_token = 'KEY-HERE';
 
     //***************************************
-    // DONT NOT MAKE CHANGES BELOW THIS COMMENT
+    // DO NOT MAKE CHANGES BELOW THIS COMMENT
     //***************************************
 
 
     // Sets required variables. Do not change this.
-      
-      setting.xm_settings = setting.twilio_path + '/xm_settings';
-      setting.xm_action =  setting.twilio_path + '/xm_action';
-      setting.xm_group = setting.twilio_path + '/xm_group';
-      setting.xm_record =  setting.twilio_path + '/xm_record';
-      setting.xm_confirmRec =  setting.twilio_path + '/xm_confirmRec';
-      setting.xm_shorten =  setting.twilio_path + '/xm_shorten';
-      setting.xm_message = setting.twilio_path + '/xm_message';
 
-    
-      var Authorized = '';
-      event.what = '';
-      event.who = '';
-      setting.url;
-      setting.Group_Speak_Text = '';
-      setting.digit =  '';
-      setting.Message_Phrase ='';
-      setting.Alert_Phrase = 'What group would you like to Alert? ';
-      setting.Conference_Phrase = 'What group would you like to invite to the conference? ';
-      setting.Wait_Phrase = 'You are a natural! Im sending this over to x matters.';
+    settings.xm_settings = settings.twilio_path + '/xm_settings';
+    settings.xm_action = settings.twilio_path + '/xm_action';
+    settings.xm_group = settings.twilio_path + '/xm_group';
+    settings.xm_record = settings.twilio_path + '/xm_record';
+    settings.xm_confirmRec = settings.twilio_path + '/xm_confirmRec';
+    settings.xm_shorten = settings.twilio_path + '/xm_shorten';
+    settings.xm_message = settings.twilio_path + '/xm_message';
 
-   
-      
-     // Set up the template variables.
-     // You can customize this but be very careful.
-    for (i = 0; i < setting.NumberofGroups; i++ ) {
-       digit = i + 1;
-       setting.Group_Speak_Text += "Press " + digit + " for " + setting.Speak_Groups[i] + ". ";  
-    
+
+    var Authorized = '';
+    event.what = '';
+    event.who = '';
+    settings.url;
+    settings.Group_Speak_Text = '';
+    settings.digit = '';
+    settings.Message_Phrase = '';
+    settings.Alert_Phrase = 'What group would you like to Alert? ';
+    settings.Conference_Phrase = 'What group would you like to invite to the conference? ';
+    settings.Wait_Phrase = 'You are a natural! Im sending this over to x matters.';
+
+
+    // Set up the template variables.
+    // You can customize this but be very careful.
+    for (i = 0; i < settings.NumberofGroups; i++) {
+        digit = i + 1;
+        settings.Group_Speak_Text += "Press " + digit + " for " + settings.Speak_Groups[i] + ". ";
+
     }
-    if (setting.NumberofGroups === 0) {
-        
-        setting.Alert_Phrase = 'Sure, I will send an Alert to the groups defined in xMatters. ';
-        setting.Conference_Phrase = 'Sure, I will start a conference bridge with the groups defined in xMatters. ';
-        setting.Group_Speak_Text = '';
-    
+    if (settings.NumberofGroups === 0) {
+
+        settings.Alert_Phrase = 'Sure, I will send an Alert to the groups defined in xMatters. ';
+        settings.Conference_Phrase = 'Sure, I will start a conference bridge with the groups defined in xMatters. ';
+        settings.Group_Speak_Text = '';
+
     }
 
-    
+
     // Get user devices from xMatters and compare with CallerID
     const promises = [];
     for (var user in Authorized_Users) {
-            
+
         console.log("Checking if User is Authorized: " + Authorized_Users[user]);
-        
-        promises.push( get_auth(Authorized_Users[user]) );
-                        
+
+        promises.push(get_auth(Authorized_Users[user]));
+
     }
 
-    Promise.all( promises ).then(function(results)  {
-    
-    console.log('Final Authentication Results: ', results);
-     
+    Promise.all(promises).then(function(results) {
+
+        console.log('Final Authentication Results: ', results);
+
         // If we find a user who is authorized proceed  
         if (results.indexOf('Yes') > -1) {
-              // there's a yes
-                           
-              let twiml = new Twilio.twiml.VoiceResponse();
-            
-                    twiml.redirect({
-                        method: 'POST'
-                        }, setting.xm_action  + '?setting=' +  encodeURI(JSON.stringify(setting)));
-                        
-                   callback(null, twiml);
-     
-          }
-          // We did not find an athorized user exit
-          else {
-              
-                let twiml = new Twilio.twiml.VoiceResponse();
-                twiml.say({ voice: 'alice'},"Sorry, you are not authorized for this. Please speak with your x matters admin");
-                
-                callback(null, twiml);
-                  
-          }
-      
+            // there's a yes
+
+            let twiml = new Twilio.twiml.VoiceResponse();
+
+            twiml.redirect({
+                method: 'POST'
+            }, settings.xm_action + '?setting=' + encodeURI(JSON.stringify(settings)));
+
+            callback(null, twiml);
+
+        }
+        // We did not find an athorized user exit
+        else {
+
+            let twiml = new Twilio.twiml.VoiceResponse();
+            twiml.say({
+                voice: 'alice'
+            }, "Sorry, you are not authorized for this. Please speak with your x matters admin");
+
+            callback(null, twiml);
+
+        }
+
     }).catch(function(e) {
-      console.log('error', e);
-    });  
-       
-       
+        console.log('Promises error', e);
+    });
 
- 
+
     function get_auth(user) {
-       const promise = new Promise((resolve, reject) => {
+        const promise = new Promise((resolve, reject) => {
             return get_xm_devices(user)
-            .then(value => resolve(value) )
-            .catch(error => reject(error));
-       });
-       
-       return promise;
+                .then(value => resolve(value))
+                .catch(error => reject(error));
+        });
+
+        return promise;
     }
-    
-    
-    
- 
-    function get_xm_devices (user) {
-            
+
+
+    function get_xm_devices(user) {
+
+        console.log('Getting devices for "' + (xmatters + '/api/xm/1/people/' + user + '/devices') + '"');
+
         return got(xmatters + '/api/xm/1/people/' + user + '/devices', {
-                      headers: {
-                        'accept': 'application/json',
-                        'Authorization' : 'Basic ' +  Buffer.from(xm_user + ':' + xm_pass).toString('base64')
-                      },
-                      json: true
-                    })
-                    
-                .then(function(response) {  
-               
-                  resdata =  response.body.data;
-                  
-                  console.log("Response " + JSON.stringify(resdata));
-              
-                        for (var device in resdata) {
-  
-                            console.log(resdata[device].deviceType);  
-                            // User has voice device check if the caller Id on initiating phone exists.
-                            if (resdata[device].deviceType === "VOICE") {
-                                
-                                console.log("User Devices: " + resdata[device].deviceType + " " + resdata[device].phoneNumber);                          
-                         
-                                // Authorized. User Voice device matching caller ID found.
-                                if ( resdata[device].phoneNumber === event.From) 
-                                {
-                                  Authorized = "Yes";
-                                }
-                                 //Not Authorized. Voice devices do not match caller ID. 
-                                else {
-                                  Authorized = "No";
-                                }
-                              
-                            }
-                            else {
-                                // Not Authorized. No user Voice devices found.
-                                 Authorized = "No";
-                            }
+                headers: {
+                    'accept': 'application/json',
+                    'Authorization': 'Basic ' + Buffer.from(xm_user + ':' + xm_pass).toString('base64')
+                },
+                json: true
+            })
+
+            .then(function(response) {
+
+                resdata = response.body.data;
+
+                console.log("get_xm_devices Response " + JSON.stringify(resdata));
+
+                for (var device in resdata) {
+
+                    Authorized = "No";
+
+                    //console.log(resdata[device].deviceType);  
+                    // User has voice device check if the caller Id on initiating phone exists.
+                    if (resdata[device].deviceType === "VOICE") {
+
+                        console.log("User VOICE Device: '" + JSON.stringify(resdata[device].phoneNumber) + "' ?= '" + JSON.stringify(event.From) + "': " + (resdata[device].phoneNumber === event.From));
+
+                        // Authorized. User Voice device matching caller ID found.
+                        if (resdata[device].phoneNumber === event.From) {
+                            return "Yes";
                         }
-                        
-                      return  Authorized;
 
-                    })
-                .catch(function(error) {
- 
-                    console.log("error " + error);
+                    }
+                }
+
+                return 'No';
+
+            })
+            .catch(function(error) {
+
+                console.log("get_xm_devices error " + error);
+
+                // We'll just skip the 404, if the user isn't found, then
+                // he wouldn't be auth'd anyway
+                if (error.statusCode != 404)
                     callback(error);
-                     
-                    // Boo, there was an error.
-                    twiml.say({ voice: 'alice'}, 'Oops, something went wrong. The event has not been sent. You will need to send this event directly from x matters.');
 
-                });
+                // Boo, there was an error.
+                let twiml = new Twilio.twiml.VoiceResponse();
+                twiml.say({
+                    voice: 'alice'
+                }, 'Oops, something went wrong. The event has not been sent. You will need to send this event directly from x matters.');
+
+            });
     }
-          
+
 };

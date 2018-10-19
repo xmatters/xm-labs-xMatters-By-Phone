@@ -8,18 +8,19 @@ This integration will help you to initiate xMatters notifications by calling a P
 # Pre-Requisites
 * Twilio account (https://www.twilio.com)
 * Twilio Phone number with Calling capabilities.
-* Bitly Account for shortening recording URLS.[get one](https://www.bitly.com).
+* Bitly Account for shortening recording URLS. [get one](https://www.bitly.com).
 * xMatters account - If you don't have one, [get one](https://www.xmatters.com)!
 
 
 # Files
-* [xm_settings](TwilioFunctions/xm_settings.txt)
-* [xm_action](TwilioFunctions/xm_action.txt)
-* [xm_group](TwilioFunctions/xm_group.txt)
-* [xm_record](TwilioFunctions/xm_record.txt)
-* [xm_confirmRec](TwilioFunctions/xm_confirmRec.txt)
-* [xm_shorten](TwilioFunctions/xm_shorten.txt)
-* [xm_message](TwilioFunctions/xm_message.txt)
+* Twilio function files
+   * [xm_settings](TwilioFunctions/xm_settings.txt)
+   * [xm_action](TwilioFunctions/xm_action.txt)
+   * [xm_group](TwilioFunctions/xm_group.txt)
+   * [xm_record](TwilioFunctions/xm_record.txt)
+   * [xm_confirmRec](TwilioFunctions/xm_confirmRec.txt)
+   * [xm_shorten](TwilioFunctions/xm_shorten.txt)
+   * [xm_message](TwilioFunctions/xm_message.txt)
 
 * [xMatters Initiate Event via Phone Call Communication Plan](xMattersPlan/InitiateEventviaPhoneCall.zip)
 
@@ -141,6 +142,8 @@ This user needs to be able to work with events, but does not need to update admi
 
 __Note__: If you are installing this integration into an xMatters trial instance, you don't need to create a new user. Instead, locate the "Integration User" sample user that was automatically configured with the REST Web Service User role when your instance was created and assign them a new password. You can then skip ahead to the next section.
 
+__Note 2__: This user won't be able to "see" other users with the Company Supervisor role and so won't be able to authenticate
+
 __To create an integration user:__
 
 1. Log in to the target xMatters system.
@@ -182,28 +185,6 @@ To import the communication plan:
 Repeat steps 6 to 9 for __On-Call Resource Conference__ form.
 
 __Special Note:__ The __Twilio_API_User__ will always initiate the xMatters event for this integration. A separate setting inside the Twilio __xm_settings__ function will control whether the calling phone/person is allowed to initiate an xMatters event using this integration.  Assuming the person is calling from a phone with a caller ID matching a user in xMatters and the xm_settings configuration, an event will be created by the __Twilio_API_User__.
-
-
-
-
-<br><br>
-## Configure the xMatters Message
-
-This integration will send a preconfigured message to the selected xMatters group. The _Alert_ and _Conference_ messages can be different from each other.
-You can change what this message is as follows:
-
-1. In the __Edit__ drop down list on the  _xMatters Initiate Event via Phone Call Communication Plan_ Click __Integration Builder__.
-2. On the Integration Builder tab, expand the list of inbound integrations.
-3. Click on either __On-Call Alert__ or __On-Call Conference__.
-4. Scroll to Step 5 and click __Open Script Editor__.
-5. Go to Line 65 and change the Description text.
-
-```
-trigger.properties.Description = 'THIS IS THE TEXT THAT YOU CAN CHANGE. DO NOT DELETE THE QUOTATION MARKES SURROUNDING THIS TEXT.';
-```
-
-6. Click __Save__.
-
 
 
 
@@ -315,7 +296,7 @@ You will need this URL for both __On-Call Alert__ and  __On-Call Conference__.
 
 7. Set the Function __Path__. _See below for proper Paths_.
 
-8. Clear Twilio Code and copy the code from this repository to Twilio.
+8. Clear Twilio Code and copy the code from this repository to Twilio. We will configure these in the next section. 
 
 9. __Save__.
 
@@ -344,6 +325,20 @@ Copy the Code below to Twilio Functions
 * [xm_shorten](TwilioFunctions/xm_shorten.txt)
 * [xm_message](TwilioFunctions/xm_message.txt)
 
+
+11. Create a new Twilio API key
+
+Click on __API Keys__
+<kbd>
+  <img src="/media/API-Key.png" width="500px">
+</kbd>
+
+Click the + to add a new Key and give it an appropriate name, then hit Create Key. 
+
+<kbd>
+  <img src="/media/API-Key-Value.png" width="500px">
+</kbd>
+Copy the SID and Secret to a safe place, __this will be the only time the secret is shown__. 
 
 <br><br>
 ## Configure Twilio "xm_settings" Functions
@@ -374,25 +369,25 @@ Copy the Code below to Twilio Functions
 | setting.twilio_path                  | The base path to all of your twilio functions.                              | 
 
 
-    <kbd>
-      <img src="/media/Function-Path.png">
-    </kbd>
+<kbd>
+  <img src="/media/Function-Path.png">
+</kbd>
 
 
 
 <br><br>
 ### xMatters Base URL and Webservice User
 
-  ```js
-    // xMatters Base URL
-    // Do not include trailing slash
-    xmatters = 'https://company.xmatters.com';
-    
-    // xMatters Webservice User name and password
-    xm_user = 'REST';
-    xm_pass = 'rest password';
+```js
+  // xMatters Base URL
+  // Do not include trailing slash
+  xmatters = 'https://company.xmatters.com';
+  
+  // xMatters Webservice User name and password
+  xm_user = 'REST';
+  xm_pass = 'rest password';
 
-  ```
+```
 
 | __xMatters Base URL and Webservice User__          |                                                                             |
 |----------------------------------------------------|-----------------------------------------------------------------------------|
@@ -402,16 +397,35 @@ Copy the Code below to Twilio Functions
 
 
 
+### Populate Twilio SID and Secret
+
+These came from the Twilio API Key above
+
+```js
+    // Twilio SID and Secret API key for authenticating
+    // into the Twilio API for transcription
+    settings.twilio_sid = 'LONG-SID-VALUE-HERE';
+    settings.twilio_sec = 'LONG-SECRET-HERE';
+```
+
+
+| __Twilio API Credentials__          |          |
+|--------------|-----------------------------------------------------------------------------|
+| settings.twilio_sid      | The SID value of the Twilio API key | 
+| settings.twilio_sec      | The secret value of the Twilio API key | 
+
+
+
 <br><br>
 ### Inbound Integration URLS
 
-  ```js
-    // This is the Inbound Integration url for "On-Call Alert"
-    setting.url_alert = 'https://company.xmatters.com/api/integration/1/functions/29467509-76-b0af-c70585021d8e/triggers?apiKey=2675d2d5-16f3-4c7e-4e9549451662';
-    
-    // This is the Inbound Integration url for "On-Call Conference Bridge"
-    setting.url_conf = 'https://company.xmatters.com/api/integration/1/functions/a77562ae-05f-b870-bda997117b5c/triggers?apiKey=f58a9959-7233--95ff-eec3c7443e2f';
-  ```
+```js
+  // This is the Inbound Integration url for "On-Call Alert"
+  setting.url_alert = 'https://company.xmatters.com/api/integration/1/functions/29467509-76-b0af-c70585021d8e/triggers?apiKey=2675d2d5-16f3-4c7e-4e9549451662';
+  
+  // This is the Inbound Integration url for "On-Call Conference Bridge"
+  setting.url_conf = 'https://company.xmatters.com/api/integration/1/functions/a77562ae-05f-b870-bda997117b5c/triggers?apiKey=f58a9959-7233--95ff-eec3c7443e2f';
+```
 
 
 | __Integration URLS__           | [Get the xMatters Inbound Integration Endpoints](#get-the-xmatters-inbound-integration-endpoints)|
@@ -542,15 +556,17 @@ Once you have finished it should look like this:
 
 4. Click on the phone number you just purchased.
 
-5. In the __Voice & Fax__ section configure what happens when a __Call Comes in__.
+5. In the __Voice & Fax__ section configure what happens when a __Call Comes in__, select the function relating to xm_settings.
 
-CALL COMES IN [FUNCTION] [01-xMatters-Notify-Settings] Select function relating to xm_settings.
+__CALL COMES IN__ 
+FUNCTION
+`01-xMatters-Notify-Settings`
 
 ** If you named your functions differently that described in this integration __01-xMatters-Notify-Settings__ may be different. You want to select the function for xm_settings.
 
-   <kbd>
-      <img src="/media/Call-in.png" width="550px">
-    </kbd>
+<kbd>
+  <img src="/media/Call-in.png" width="550px">
+</kbd>
 
 
 

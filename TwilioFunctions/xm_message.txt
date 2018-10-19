@@ -8,8 +8,6 @@ console.log("EVENT: " + JSON.stringify(event));
 var settings = JSON.parse(decodeURI(event.setting));
 console.log("EVENT: " + JSON.stringify(event));
 
-
-
   let twiml = new Twilio.twiml.VoiceResponse();
    
   var url = "https://api.twilio.com/2010-04-01/Accounts/" + event.AccountSid + "/Recordings/" + event.RecordingSid  + "/Transcriptions.json";
@@ -17,7 +15,7 @@ console.log("EVENT: " + JSON.stringify(event));
 
          got.get(url, {
               headers: {
-                 'Authorization' : 'Basic QUMzZTgyOGZiOWE0Y2IxMzZkYzNiYWI0YjE1ZjRmNzYxNzpmNDI1MDRhY2JkNTNjNjNmYTI1OWNjNDljY2RhN2Y3MQ=='
+                 'Authorization' : 'Basic ' + Buffer.from(settings.twilio_sid + ':' + settings.twilio_sec).toString('base64')
               }
             })
             .then(function(response) {  
