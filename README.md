@@ -10,18 +10,20 @@ This integration will help you to initiate xMatters notifications by calling a P
 
 - Twilio account (https://www.twilio.com)
 - Twilio Phone number with Calling capabilities.
-- Bitly Account for shortening recording URLS, [get one](https://www.bitly.com).
+- Bitly Account for shortening recording URLS. [get one](https://www.bitly.com).
 - xMatters account - If you don't have one, [get one](https://www.xmatters.com)!
 
 # Files
 
-- [xm_settings](TwilioFunctions/xm_settings.txt)
-- [xm_action](TwilioFunctions/xm_action.txt)
-- [xm_group](TwilioFunctions/xm_group.txt)
-- [xm_record](TwilioFunctions/xm_record.txt)
-- [xm_confirmRec](TwilioFunctions/xm_confirmRec.txt)
-- [xm_shorten](TwilioFunctions/xm_shorten.txt)
-- [xm_message](TwilioFunctions/xm_message.txt)
+- Twilio function files
+
+  - [xm_settings](TwilioFunctions/xm_settings.txt)
+  - [xm_action](TwilioFunctions/xm_action.txt)
+  - [xm_group](TwilioFunctions/xm_group.txt)
+  - [xm_record](TwilioFunctions/xm_record.txt)
+  - [xm_confirmRec](TwilioFunctions/xm_confirmRec.txt)
+  - [xm_shorten](TwilioFunctions/xm_shorten.txt)
+  - [xm_message](TwilioFunctions/xm_message.txt)
 
 - [xMatters Initiate Event via Phone Call Communication Plan](xMattersPlan/InitiateEventviaPhoneCall.zip)
 
@@ -36,8 +38,7 @@ This integration will help you to initiate xMatters notifications by calling a P
 - The Twilio functions will provide telephone prompts to guide you through initiate an xMatters notification.
 - You can decide to send a regular xMatters Alert/Notification or an xMatters Conference Bridge.
 - You can predefine up to 9 xMatters groups that can be target with your notification. You can select the group you would like to target using xMatters from phone prompts.
-- The URL to listen to your recorded message is shortened with Bitly to make it easier to send via sms.
-- Your recording will be transcribed and the transcription will be used for Email, SMS and Voice notifications.
+- The content of the message must be configured in the xMatters communication plan.
 
 ## Integration Function Workflow
 
@@ -134,6 +135,8 @@ This integration requires a user who can authenticate REST web service calls whe
 This user needs to be able to work with events, but does not need to update administrative settings. While you can use the default Company Supervisor role to authenticate REST web service calls, the best method is to create a user specifically for this integration with the "REST Web Service User" role that includes the permissions and capabilities.
 
 **Note**: If you are installing this integration into an xMatters trial instance, you don't need to create a new user. Instead, locate the "Integration User" sample user that was automatically configured with the REST Web Service User role when your instance was created and assign them a new password. You can then skip ahead to the next section.
+
+**Note 2**: This user won't be able to "see" other users with the Company Supervisor role and so won't be able to authenticate
 
 **To create an integration user:**
 
@@ -276,7 +279,7 @@ You will need this URL for both **On-Call Alert** and **On-Call Conference**.
 
 8) Set the Function **Path**. _See below for proper Paths_.
 
-9) Clear Twilio Code and copy the code from this repository to Twilio.
+9) Clear Twilio Code and copy the code from this repository to Twilio. We will configure these in the next section.
 
 10) **Save**.
 
@@ -305,6 +308,20 @@ Copy the Code below to Twilio Functions
 - [xm_shorten](TwilioFunctions/xm_shorten.txt)
 - [xm_message](TwilioFunctions/xm_message.txt)
 
+11. Create a new Twilio API key by clicking on **API Keys**
+
+<kbd>
+  <img src="/media/API-Key.png" width="200px">
+</kbd>
+
+12. Click the + to add a new Key and give it an appropriate name, then hit Create Key.
+
+<kbd>
+  <img src="/media/API-Key-Value.png" width="500px">
+</kbd>
+
+13. Copy the SID and Secret to a safe place, **this will be the only time the secret is shown**.
+
 <br><br>
 
 ## Configure Twilio "xm_settings" Functions
@@ -332,9 +349,9 @@ setting.twilio_path = 'https://twilio-function-url.134.twil.io/';
 | ------------------------- | ---------------------------------------------- |
 | setting.twilio_path       | The base path to all of your twilio functions. |
 
-    <kbd>
-      <img src="/media/Function-Path.png">
-    </kbd>
+<kbd>
+  <img src="/media/Function-Path.png">
+</kbd>
 
 <br><br>
 
@@ -355,6 +372,22 @@ xm_pass = 'rest password';
 | xmatters                                  | The base URL of your xMatters environment. Example: https://company.xmatters.com |
 | xm_user                                   | The username of the xMatters Twilio_API_User                                     |
 | xm_pass                                   | The password of the xMatters Twilio_API_User                                     |
+
+### Populate Twilio SID and Secret
+
+These came from the Twilio API Key above
+
+```js
+// Twilio SID and Secret API key for authenticating
+// into the Twilio API for transcription
+settings.twilio_sid = 'LONG-SID-VALUE-HERE';
+settings.twilio_sec = 'LONG-SECRET-HERE';
+```
+
+| **Twilio API Credentials** |                                        |
+| -------------------------- | -------------------------------------- |
+| settings.twilio_sid        | The SID value of the Twilio API key    |
+| settings.twilio_sec        | The secret value of the Twilio API key |
 
 <br><br>
 
@@ -492,15 +525,17 @@ Once you have finished it should look like this:
 
 4. Click on the phone number you just purchased.
 
-5. In the **Voice & Fax** section configure what happens when a **Call Comes in**.
+5. In the **Voice & Fax** section configure what happens when a **Call Comes in**, select the function relating to xm_settings.
 
-CALL COMES IN [FUNCTION][01-xmatters-notify-settings] Select function relating to xm_settings.
+**CALL COMES IN**
+FUNCTION
+`01-xMatters-Notify-Settings`
 
 \*\* If you named your functions differently that described in this integration **01-xMatters-Notify-Settings** may be different. You want to select the function for xm_settings.
 
-   <kbd>
-      <img src="/media/Call-in.png" width="550px">
-    </kbd>
+<kbd>
+  <img src="/media/Call-in.png" width="550px">
+</kbd>
 
 <br><br>
 
