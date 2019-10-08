@@ -1,65 +1,91 @@
 var got = require('got');
-const request = require('request');
-const util = require('util');
+const request = require('request');  
+const util = require('util');  
 
 exports.handler = function(context, event, callback) {
+ 
 
 
-
-    // Get Settings
-    var settings = JSON.parse(decodeURI(event.setting));
-    console.log("EVENT: " + JSON.stringify(event));
-    console.log("Settings: " + JSON.stringify(settings));
-    console.log("EVENT DIGITS: " + event.Digits);
-
-    let twiml = new Twilio.twiml.VoiceResponse();
+// Get Settings
+var settings = JSON.parse(decodeURI(event.setting));
+console.log("EVENT: " + JSON.stringify(event));
+console.log("Settings: " + JSON.stringify(settings));
+console.log("EVENT DIGITS: " + event.Digits);
+console.log("Settings xm_livecall: " + settings.xm_livecall);
 
 
-    if (event.Digits === "1" || event.Digits === "2") {
+let twiml = new Twilio.twiml.VoiceResponse();
+    
+    
+  if (event.Digits === "1" || event.Digits === "2" || event.Digits === "3") {
+      
+   
+            if (event.Digits === "1") {
+              Message_Phrase = settings.Alert_Phrase;
+              what = 'Alert';
+            }
+            if (event.Digits === "2") {
+              Message_Phrase = settings.Conference_Phrase;     
+              what = 'Conference';
+            }
+            if (event.Digits === "3") {
+              Message_Phrase = settings.Livecall_Phrase;     
+              what = 'Livecall';
+            }
+            console.log("what: " + what);
+        
+        
+           //  Direct to livecall function
+           if (what === "Livecall") {
+                const gather = twiml.gather({
+                      input: 'dtmf',
+                      numDigits: 1,
+                      action: settings.xm_livecall  + '?setting=' +  encodeURI(JSON.stringify(settings)) + '&Message_Phrase=' + encodeURI(Message_Phrase) + '&what=' + what
+                });
+    
+                // repeats the message until a response is recieved
+                gather.say({ voice: 'alice', loop: 1}, Message_Phrase + settings.Group_Speak_Text);
+                twiml.pause({ length: 1 });
+                twiml.redirect(settings.xm_group  + '?setting=' +  encodeURI(JSON.stringify(settings)) + '&Message_Phrase=' + encodeURI(Message_Phrase) + '&what=' + what + '&Digits=' + event.Digits);
+                callback(null, twiml);
+     
+            }
+            // Direct to group function
+            else {        
 
-
-        if (event.Digits === "1") {
-            Message_Phrase = settings.Alert_Phrase;
-            what = 'Alert';
-
-        } else {
-            Message_Phrase = settings.Conference_Phrase;
-            what = 'Conference';
-        }
-
-        console.log("what: " + what);
-
-        const gather = twiml.gather({
-            input: 'dtmf',
-            numDigits: 1,
-            action: settings.xm_record + '?setting=' + encodeURI(JSON.stringify(settings)) + '&Message_Phrase=' + encodeURI(Message_Phrase) + '&what=' + what
-        });
-
-        gather.say({ voice: 'alice', loop: 1 }, Message_Phrase + settings.Group_Speak_Text);
-        twiml.pause({ length: 1 });
-        twiml.redirect(settings.xm_group + '?setting=' + encodeURI(JSON.stringify(settings)) + '&Message_Phrase=' + encodeURI(Message_Phrase) + '&what=' + what + '&Digits=' + event.Digits);
-        callback(null, twiml);
+                const gather = twiml.gather({
+                      input: 'dtmf',
+                      numDigits: 1,
+                      action: settings.xm_record  + '?setting=' +  encodeURI(JSON.stringify(settings)) + '&Message_Phrase=' + encodeURI(Message_Phrase) + '&what=' + what
+                });
+    
+           
+                // repeats the message until a response is recieved
+                gather.say({ voice: 'alice', loop: 1}, Message_Phrase + settings.Group_Speak_Text);
+                twiml.pause({ length: 1 });
+                twiml.redirect(settings.xm_group  + '?setting=' +  encodeURI(JSON.stringify(settings)) + '&Message_Phrase=' + encodeURI(Message_Phrase) + '&what=' + what + '&Digits=' + event.Digits);
+                callback(null, twiml);
+          
+            }
     }
-
-
-
-    // Incorrect Actions Digits Repeat last step
+  
+   // Incorrect Digits Repeat last step
     else {
+        
+           twiml.say({ voice: 'alice', loop: 1},'Invalid Digit. Listen carefully.');
+            
+            const gather = twiml.gather({
+                  input: 'dtmf',
+                  numDigits: 1,
+                  action: settings.xm_group  + '?setting=' +  encodeURI(JSON.stringify(settings))
+            });
+            gather.say({ voice: 'alice', loop: 1},'Press 1 to alert an x matters group. Press 2 to start an x matters conference bridge. Press 3 to speak live with the primary on call.');  
+             twiml.pause({ length: 1 });
+            twiml.redirect(settings.xm_group  + '?setting=' +  encodeURI(JSON.stringify(settings)));
+               
+            callback(null, twiml);
 
-        twiml.say({ voice: 'alice', loop: 1 }, 'Invalid Digit. Listen carefully.');
-
-        const gather = twiml.gather({
-            input: 'dtmf',
-            numDigits: 1,
-            action: settings.xm_group + '?setting=' + encodeURI(JSON.stringify(settings))
-        });
-        gather.say({ voice: 'alice', loop: 1 }, 'Press 1 to alert an x matters group. Press 2 to start an x matters conference bridge.');
-        twiml.pause({ length: 1 });
-        twiml.redirect(settings.xm_group + '?setting=' + encodeURI(JSON.stringify(settings)));
-
-        callback(null, twiml);
-
-    }
+    }   
 
 
 } // close handler

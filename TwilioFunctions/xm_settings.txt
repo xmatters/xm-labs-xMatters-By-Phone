@@ -24,11 +24,16 @@ exports.handler = function(context, event, callback) {
     xm_user = 'twiliouser';
     xm_pass = 'mycomplexpassword';
 
+    // This is a verified phone number to use as the outgoing caller ID when initiating live calls to the primary on call of a group.
+    // Instructions on how to Verified a phone number in Twilio.
+    // https://support.twilio.com/hc/en-us/articles/223180048-Adding-a-Verified-Phone-Number-or-Caller-ID-with-Twilio
+    // If you do not set a number Verified number here, the caller id will be the caller ID of the pone initiating this integration.
+    setting.callerID = '15555555555';
+
     // Twilio SID and Secret API key for authenticating
     // into the Twilio API for transcription
     settings.twilio_sid = 'LONG-SID-VALUE-HERE';
     settings.twilio_sec = 'LONG-SECRET-HERE';
-
 
     // This is the Inbound Integration url for "On-Call Alert"
     settings.url_alert = 'https://acme.xmatters.com/api/integration/1/functions/UUID/triggers?apiKey=UUID-KEY-HERE';
@@ -74,6 +79,8 @@ exports.handler = function(context, event, callback) {
     settings.xm_action = settings.twilio_path + '/xm_action';
     settings.xm_group = settings.twilio_path + '/xm_group';
     settings.xm_record = settings.twilio_path + '/xm_record';
+    setting.xm_livecall = setting.twilio_path + '/xm_livecall';
+    setting.xm_escalate = setting.twilio_path + '/xm_escalate';
     settings.xm_confirmRec = settings.twilio_path + '/xm_confirmRec';
     settings.xm_shorten = settings.twilio_path + '/xm_shorten';
     settings.xm_message = settings.twilio_path + '/xm_message';
@@ -88,6 +95,7 @@ exports.handler = function(context, event, callback) {
     settings.Message_Phrase = '';
     settings.Alert_Phrase = 'What group would you like to Alert? ';
     settings.Conference_Phrase = 'What group would you like to invite to the conference? ';
+    setting.Livecall_Phrase = 'What group would you like to speak live with? ';
     settings.Wait_Phrase = 'You are a natural! Im sending this over to x matters.';
 
 
@@ -102,6 +110,7 @@ exports.handler = function(context, event, callback) {
 
         settings.Alert_Phrase = 'Sure, I will send an Alert to the groups defined in xMatters. ';
         settings.Conference_Phrase = 'Sure, I will start a conference bridge with the groups defined in xMatters. ';
+        setting.Livecall_Phrase = 'Sure, I will connect you to speak with the primary on call. ';
         settings.Group_Speak_Text = '';
 
     }
@@ -182,9 +191,8 @@ exports.handler = function(context, event, callback) {
 
                 for (var device in resdata) {
 
-                    Authorized = "No";
+                    Authorized = 'No';
 
-                    //console.log(resdata[device].deviceType);  
                     // User has voice device check if the caller Id on initiating phone exists.
                     if (resdata[device].deviceType === "VOICE") {
 
@@ -197,7 +205,7 @@ exports.handler = function(context, event, callback) {
 
                     }
                 }
-
+		// To disable user authentication change the next like to "  return 'Yes';"
                 return 'No';
 
             })
