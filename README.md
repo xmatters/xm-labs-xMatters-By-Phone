@@ -60,8 +60,8 @@ This integration will help you to initiate xMatters notifications by calling a P
       3. Initate a live call with the primary on call for a group.   => Initiates **xm_livecall** function.
 
    - This sets a variable so _xm_message_ will send the event to the proper xMatters Inbound Integration URL.
-   - a. **Alert** -> **On-Call Alert**
-   - b. **Conference Bridge** -> **On-Call Conference**
+   		a. **Alert** -> **On-Call Alert**
+   		b. **Conference Bridge** -> **On-Call Conference**
 
 ```
   Hey there, What's the problem?
@@ -92,12 +92,17 @@ What group would you like to invite to the conference. Press 1 for xyz. Press 2 
 
 ```
 What group would you like to speak live with. Press 1 for xyz. Press 2 for jkl. Press 3 for mno.
-Calling "John Smith", good luck with your problem.
+Calling Admin Group, primary on call "John Smith", good luck with your problem.
 ```
 
 6. Twilio Function **xm_escalate** is initiated.
-   - Escalates to the next on call if a member does not answer within 20 seconds.
-   - If the primary on call does not answer the phone within 20 seconds, the call is automatically routed to the next on call member.
+   - Handles escalations to the next on call if phone is not not answer within 17 seconds.
+   - An answering machine will stop the process and will result in not connecting with someone live. 
+   		- 17 seconds is typically short enough that voicemail will not answer. This setting can be changed.
+   		- The system add a 5 second buffer to the timeout setting provided. 12 seconds + 5 second buffer = 17 seconds.
+   	
+   	Line 27:  ... __'timeout':12__ ... 
+   	
 
 ```
 Calling the next on call, "Henry Stephens", good luck.
