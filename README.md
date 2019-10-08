@@ -21,6 +21,8 @@ This integration will help you to initiate xMatters notifications by calling a P
   - [xm_action](TwilioFunctions/xm_action.txt)
   - [xm_group](TwilioFunctions/xm_group.txt)
   - [xm_record](TwilioFunctions/xm_record.txt)
+  - [xm_livecall](TwilioFunctions/xm_livecall.txt)
+  - [xm_escalate](TwilioFunctions/xm_escalate.txt) 
   - [xm_confirmRec](TwilioFunctions/xm_confirmRec.txt)
   - [xm_shorten](TwilioFunctions/xm_shorten.txt)
   - [xm_message](TwilioFunctions/xm_message.txt)
@@ -37,6 +39,7 @@ This integration will help you to initiate xMatters notifications by calling a P
 - The caller ID of the calling phone must belong to a user inside of xMatters and must be configured in the Twilio function. Multiple users can initiate an event but they must be valid xMatters users.
 - The Twilio functions will provide telephone prompts to guide you through initiate an xMatters notification.
 - You can decide to send a regular xMatters Alert/Notification or an xMatters Conference Bridge.
+- You can connect directly to the primary on call for a group and your call will escalate to the next on call if the phone is not answered.
 - You can predefine up to 9 xMatters groups that can be target with your notification. You can select the group you would like to target using xMatters from phone prompts.
 - The content of the message must be configured in the xMatters communication plan.
 
@@ -44,19 +47,27 @@ This integration will help you to initiate xMatters notifications by calling a P
 
 1. User Calls Twilio Voice enabled phone number.
 
-2) Twilio Function **xm_settings** is initiated.
+2. Twilio Function **xm_settings** is initiated.
    - This file contains all the settings for the integration
    - Performs authentication based on the calling phone Caller ID.
    - Phones that block / hide the Caller ID will not be able to use this integrations.
 
 3. Twilio Function **xm_action** is initiated.
-   - Prompts the user to create a regular xMatters Alert or an Alert with a Conference Bridge.
+   - Prompts the user to:
+   
+      1. Create a regular xMatters Alert.   => Initiates **xm_group** function.
+      2. Create an xMatters Alert with a Conference Bridge.   => Initiates **xm_group** function.
+      3. Initate a live call with the primary on call for a group.   => Initiates **xm_livecall** function.
+
    - This sets a variable so _xm_message_ will send the event to the proper xMatters Inbound Integration URL.
-   - 1. **Alert** -> **On-Call Alert**
-   - 2. **Conference Bridge** -> **On-Call Conference**
+   		a. **Alert** -> **On-Call Alert**
+   		b. **Conference Bridge** -> **On-Call Conference**
 
 ```
-  Hey there, What's the problem? Press 1 to alert an xMatters group. Press 2 to start an xMatters conference bridge.
+  Hey there, What's the problem?
+  Press 1 to alert an xMatters group. 
+  Press 2 to start an xMatters conference bridge. 
+  Press 3 to speak live with the primary on call.
 ```
 
 4. Twilio Function **xm_group** is initiated.
@@ -70,14 +81,44 @@ What group would you like to alert. Press 1 for xyz. Press 2 for jkl. Press 3 fo
 What group would you like to invite to the conference. Press 1 for xyz. Press 2 for jkl. Press 3 for mno.
 ```
 
-5. Twilio Function **xm_record** is initiated.
+5. Twilio Function **xm_livecall** is initiated.
+   - Prompts the user to select a target group to speak with the primary on call.
+   - Makes a GET request to xMatters to get Who's on call details about the group.
+   - Nested groups (Group inside of a Group up to n levels), temporary absence with and without replacements, empty groups, users with no devices and groups with devices are all supported.
+   - Dynamic Teams are not supported.
+   - Hnadles cases where no users are on call or do not have a voice device.
+   - Creates an ordered list of on call members with voice devices.
+   - Attempts to connect to the first on call member in the group. => After first call is made **xm_escalate** is initialized.
+
+```
+What group would you like to speak live with. Press 1 for xyz. Press 2 for jkl. Press 3 for mno.
+Calling Admin Group, primary on call "John Smith", good luck with your problem.
+```
+
+6. Twilio Function **xm_escalate** is initiated.
+   - Handles escalations to the next on call if phone is not not answer within 17 seconds.
+   - An answering machine will stop the process and will result in not connecting with someone live. 
+   		- 17 seconds is typically short enough that voicemail will not answer. This setting can be changed.
+   		- The system add a 5 second buffer to the timeout setting provided. 12 seconds + 5 second buffer = 17 seconds.
+   	
+   	Line 27:  ... __'timeout':12__ ... 
+   	
+
+```
+Calling the next on call, "Henry Stephens", good luck.
+Calling the next on call, "nth member", good luck.
+If no member answers the phone, caller is sent back to the xm_action.
+```
+
+
+7. Twilio Function **xm_record** is initiated.
    - Prompts the user to record a message over the phone.
 
 ```
 Record your message after the beep. Press 1 if you are happy with your recording, any other key to restart.
 ```
 
-6. Twilio Function **xm_confirm** is initiated.
+8. Twilio Function **xm_confirm** is initiated.
    - Handles the case where user wants to re-record the message.
    - Moves the script to the next function if the user is happy with the recording.
 
@@ -85,7 +126,7 @@ Record your message after the beep. Press 1 if you are happy with your recording
 Record your message after the beep. Press 1 if you are happy with your recording, any other key to restart.
 ```
 
-7. Twilio Function **xm_shorten** is initiated.
+9. Twilio Function **xm_shorten** is initiated.
    - Sends the recording URL to Bitly where the long form URL is shortened.
    - If there is an error shortening the URL we will continue on using the long version of the URL.
 
@@ -97,7 +138,7 @@ Converted to:
 http:/bit.ly/2sjdsis2
 ```
 
-8. Twilio Function **xm_message** is initiated.
+10. Twilio Function **xm_message** is initiated.
    - Plays some fun messages while we are waiting for the recording transcription to complete.
    - This function continuously loops checking the transcription status each time.
    - The time this step takes to complete will vary depending on the length of the recorded message.
@@ -121,7 +162,7 @@ http:/bit.ly/2sjdsis2
 - Oops, something went wrong. The event has not been sent. You will need to send this event directly from xMatters.
 ```
 
-9. xMatters Inbound Integration Script.
+11. xMatters Inbound Integration Script.
 
    - This script gets the xMatters recipients out of the payload.
    - This script adds trascription text to xMatters properties "Description" and "Short Description".
@@ -304,6 +345,8 @@ Copy the Code below to Twilio Functions
 - [xm_action](TwilioFunctions/xm_action.txt)
 - [xm_group](TwilioFunctions/xm_group.txt)
 - [xm_record](TwilioFunctions/xm_record.txt)
+- [xm_livecall](TwilioFunctions/xm_livecall.txt)
+- [xm_escalate](TwilioFunctions/xm_escalate.txt) 
 - [xm_confirmRec](TwilioFunctions/xm_confirmRec.txt)
 - [xm_shorten](TwilioFunctions/xm_shorten.txt)
 - [xm_message](TwilioFunctions/xm_message.txt)
@@ -372,6 +415,17 @@ xm_pass = 'rest password';
 | xmatters                                  | The base URL of your xMatters environment. Example: https://company.xmatters.com |
 | xm_user                                   | The username of the xMatters Twilio_API_User                                     |
 | xm_pass                                   | The password of the xMatters Twilio_API_User                                     |
+
+
+### Outgoing Caller ID
+
+```js
+// This is a verified phone number to use as the outgoing caller ID when initiating live calls to the primary on call of a group.
+// Instructions on how to Verified a phone number in Twilio.
+// https://support.twilio.com/hc/en-us/articles/223180048-Adding-a-Verified-Phone-Number-or-Caller-ID-with-Twilio
+// If you do not set a number Verified number here, the caller id will be the caller ID of the pone initiating this integration.
+settings.callerID = '15555555555';
+```
 
 ### Populate Twilio SID and Secret
 
@@ -571,7 +625,7 @@ FUNCTION
 
 5. Disable authentication check. Not recommended as this will allow anyone to initiate an xMatters event.
 
-Modify Line 201 of **xm_settings** to be:
+Modify Line 209 of **xm_settings** to be:
 
 ```js
 return 'Yes';

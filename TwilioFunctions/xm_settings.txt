@@ -4,7 +4,7 @@ const util = require('util');
 
 exports.handler = function(context, event, callback) {
 
-    console.log("EVENT1: " + JSON.stringify(event));
+    console.log("EVENT: " + JSON.stringify(event));
 
     //***************************************
     // CONFIGURATION
@@ -13,28 +13,33 @@ exports.handler = function(context, event, callback) {
     settings = {};
 
     // Twilio Function Paths
-    settings.twilio_path = 'https://some-path-1234.twil.io';
+    setting.twilio_path = 'https://some-path-1234.twil.io';
 
 
     // xMatters Base URL
     // Do not include trailing slash
-    xmatters = 'https://acme.xmatters.com';
+    setting.xmatters = 'https://acme.xmatters.com';
 
     // xMatters Webservice User name and password
-    xm_user = 'twiliouser';
-    xm_pass = 'mycomplexpassword';
+    setting.xm_user = 'twiliouser';
+    setting.xm_pass = 'mycomplexpassword';
+
+    // This is a verified phone number to use as the outgoing caller ID when initiating live calls to the primary on call of a group.
+    // Instructions on how to Verified a phone number in Twilio.
+    // https://support.twilio.com/hc/en-us/articles/223180048-Adding-a-Verified-Phone-Number-or-Caller-ID-with-Twilio
+    // If you do not set a number Verified number here, the caller id will be the caller ID of the pone initiating this integration.
+    setting.callerID = '15555555555';
 
     // Twilio SID and Secret API key for authenticating
     // into the Twilio API for transcription
-    settings.twilio_sid = 'LONG-SID-VALUE-HERE';
-    settings.twilio_sec = 'LONG-SECRET-HERE';
-
+    setting.twilio_sid = 'LONG-SID-VALUE-HERE';
+    setting.twilio_sec = 'LONG-SECRET-HERE';
 
     // This is the Inbound Integration url for "On-Call Alert"
-    settings.url_alert = 'https://acme.xmatters.com/api/integration/1/functions/UUID/triggers?apiKey=UUID-KEY-HERE';
+    setting.url_alert = 'https://acme.xmatters.com/api/integration/1/functions/UUID/triggers?apiKey=UUID-KEY-HERE';
 
     // This is the Inbound Integration url for "On-Call Conference Bridge"
-    settings.url_conf = 'https://acme.xmatters.com/api/integration/1/functions/UUID/triggers?apiKey=UUID-KEY-HERE';
+    setting.url_conf = 'https://acme.xmatters.com/api/integration/1/functions/UUID/triggers?apiKey=UUID-KEY-HERE';
 
 
     // List of xMatters users that are allowed to initiate this integration
@@ -45,23 +50,23 @@ exports.handler = function(context, event, callback) {
     // Set the number of groups you would like to be able to target from this integration.
     // The number set below must match the number of groups you have in the xMatters_Groups and Speak_Groups arrays below.
     // If you set this value to 0 you must add groups / users as default recipients in the xMatters form layout.
-    settings.NumberofGroups = 3;
+    setting.NumberofGroups = 3;
 
     // Set the xMatters Group Names.
     // Group names must match the name of your xMatters groups exactly.
     // You can add additional Groups by adding parameters to the array below. 
-    // This arry must have the same number of elements as the Speak_Group array below.
-    settings.xMatters_Groups = ["Cloud DevOps", "CAB", "Database"];
+    // This array must have the same number of elements as the Speak_Group array below.
+    setting.xMatters_Groups = ["Cloud DevOps", "CAB", "Database"];
 
 
-    // Set the Twilio Group Name.
+    // Set the Twillio Group Name.
     // You can add additional punctuation, spaces, dashes, and upper case letters to group names to help the text to speach engine pronounce it better.
-    // This arry must have the same number of elements as the xMatters_Groups array above.
-    settings.Speak_Groups = ["Cloud Dev Ops.", "C.A.B.", "Database"];
+    // This array must have the same number of elements as the xMatters_Groups array above.
+    setting.Speak_Groups = ["Cloud Dev Ops.", "C.A.B.", "Database"];
 
 
     // Bitley Access Token
-    settings.bitly_token = 'KEY-HERE';
+    setting.bitly_token = 'KEY-HERE';
 
     //***************************************
     // DO NOT MAKE CHANGES BELOW THIS COMMENT
@@ -70,39 +75,42 @@ exports.handler = function(context, event, callback) {
 
     // Sets required variables. Do not change this.
 
-    settings.xm_settings = settings.twilio_path + '/xm_settings';
-    settings.xm_action = settings.twilio_path + '/xm_action';
-    settings.xm_group = settings.twilio_path + '/xm_group';
-    settings.xm_record = settings.twilio_path + '/xm_record';
-    settings.xm_confirmRec = settings.twilio_path + '/xm_confirmRec';
-    settings.xm_shorten = settings.twilio_path + '/xm_shorten';
-    settings.xm_message = settings.twilio_path + '/xm_message';
+    setting.xm_settings = setting.twilio_path + '/xm_settings';
+    setting.xm_action = setting.twilio_path + '/xm_action';
+    setting.xm_group = setting.twilio_path + '/xm_group';
+    setting.xm_record = setting.twilio_path + '/xm_record';
+    setting.xm_livecall = setting.twilio_path + '/xm_livecall';
+    setting.xm_escalate = setting.twilio_path + '/xm_escalate';
+    setting.xm_confirmRec = setting.twilio_path + '/xm_confirmRec';
+    setting.xm_shorten = setting.twilio_path + '/xm_shorten';
+    setting.xm_message = setting.twilio_path + '/xm_message';
 
 
-    var Authorized = '';
     event.what = '';
     event.who = '';
-    settings.url;
-    settings.Group_Speak_Text = '';
-    settings.digit = '';
-    settings.Message_Phrase = '';
-    settings.Alert_Phrase = 'What group would you like to Alert? ';
-    settings.Conference_Phrase = 'What group would you like to invite to the conference? ';
-    settings.Wait_Phrase = 'You are a natural! Im sending this over to x matters.';
+    setting.url;
+    setting.Group_Speak_Text = '';
+    setting.digit = '';
+    setting.Message_Phrase = '';
+    setting.Alert_Phrase = 'What group would you like to Alert? ';
+    setting.Conference_Phrase = 'What group would you like to invite to the conference? ';
+    setting.Livecall_Phrase = 'What group would you like to speak live with? ';
+    setting.Wait_Phrase = 'You are a natural! Im sending this over to x matters.';
 
 
     // Set up the template variables.
     // You can customize this but be very careful.
-    for (i = 0; i < settings.NumberofGroups; i++) {
+    for (i = 0; i < setting.NumberofGroups; i++) {
         digit = i + 1;
-        settings.Group_Speak_Text += "Press " + digit + " for " + settings.Speak_Groups[i] + ". ";
+        setting.Group_Speak_Text += "Press " + digit + " for " + setting.Speak_Groups[i] + ". ";
 
     }
-    if (settings.NumberofGroups === 0) {
+    if (setting.NumberofGroups === 0) {
 
-        settings.Alert_Phrase = 'Sure, I will send an Alert to the groups defined in xMatters. ';
-        settings.Conference_Phrase = 'Sure, I will start a conference bridge with the groups defined in xMatters. ';
-        settings.Group_Speak_Text = '';
+        setting.Alert_Phrase = 'Sure, I will send an Alert to the groups defined in xMatters. ';
+        setting.Conference_Phrase = 'Sure, I will start a conference bridge with the groups defined in xMatters. ';
+        setting.Livecall_Phrase = 'Sure, I will connect you to speak with the primary on call. ';
+        setting.Group_Speak_Text = '';
 
     }
 
@@ -129,7 +137,7 @@ exports.handler = function(context, event, callback) {
 
             twiml.redirect({
                 method: 'POST'
-            }, settings.xm_action + '?setting=' + encodeURI(JSON.stringify(settings)));
+            }, setting.xm_action + '?setting=' + encodeURI(JSON.stringify(setting)));
 
             callback(null, twiml);
 
@@ -164,12 +172,12 @@ exports.handler = function(context, event, callback) {
 
     function get_xm_devices(user) {
 
-        console.log('Getting devices for "' + (xmatters + '/api/xm/1/people/' + user + '/devices') + '"');
+        console.log('Getting devices for "' + (setting.xmatters + '/api/xm/1/people/' + user + '/devices') + '"');
 
-        return got(xmatters + '/api/xm/1/people/' + user + '/devices', {
+        return got(setting.xmatters + '/api/xm/1/people/' + user + '/devices', {
                 headers: {
                     'accept': 'application/json',
-                    'Authorization': 'Basic ' + Buffer.from(xm_user + ':' + xm_pass).toString('base64')
+                    'Authorization': 'Basic ' + Buffer.from(setting.xm_user + ':' + setting.xm_pass).toString('base64')
                 },
                 json: true
             })
@@ -182,9 +190,7 @@ exports.handler = function(context, event, callback) {
 
                 for (var device in resdata) {
 
-                    Authorized = "No";
 
-                    //console.log(resdata[device].deviceType);  
                     // User has voice device check if the caller Id on initiating phone exists.
                     if (resdata[device].deviceType === "VOICE") {
 
@@ -192,12 +198,12 @@ exports.handler = function(context, event, callback) {
 
                         // Authorized. User Voice device matching caller ID found.
                         if (resdata[device].phoneNumber === event.From) {
-                            return "Yes";
+                            return 'Yes';
                         }
 
                     }
                 }
-
+		// To disable user authentication change the next line to: "return 'Yes';"
                 return 'No';
 
             })

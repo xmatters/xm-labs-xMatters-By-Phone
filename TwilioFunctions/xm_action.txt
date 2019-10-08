@@ -1,50 +1,51 @@
 var got = require('got');
-const request = require('request');
-const util = require('util');
+const request = require('request');  
+const util = require('util');  
 
 exports.handler = function(context, event, callback) {
+ 
 
 
-
-    // Get Settings
-    var settings = JSON.parse(decodeURI(event.setting));
-    console.log("EVENT: " + JSON.stringify(event));
-    console.log("Settings: " + JSON.stringify(settings));
-
-
-    let twiml = new Twilio.twiml.VoiceResponse();
+// Get Settings
+var settings = JSON.parse(decodeURI(event.setting));
+console.log("EVENT: " + JSON.stringify(event));
+console.log("Settings: " + JSON.stringify(settings));
 
 
-    if (settings.NumberofGroups > 0) {
+  let twiml = new Twilio.twiml.VoiceResponse();
 
 
-        const gather = twiml.gather({
-            input: 'dtmf',
-            numDigits: 1,
-            action: settings.xm_group + '?setting=' + encodeURI(JSON.stringify(settings)),
-        });
-        gather.say({ voice: 'alice', loop: 1 }, 'Hey there, Whats the problem? Press 1 to alert an x matters group. Press 2 to start an x matters conference bridge.');
-        twiml.pause({ length: 1 });
-        twiml.redirect(settings.xm_action + '?setting=' + encodeURI(JSON.stringify(settings)));
+        if (settings.NumberofGroups > 0) {
+            
+         
+            const gather = twiml.gather({
+                  input: 'dtmf',
+                  numDigits: 1,
+                  action: settings.xm_group  + '?setting=' +  encodeURI(JSON.stringify(settings)),
+            });
+            gather.say({ voice: 'alice', loop: 1},'Hey there, Whats the problem? Press 1 to alert an x matters group. Press 2 to start an x matters conference bridge. Press 3 to speak live with the primary on call.');
+            twiml.pause({ length: 1 });
+            twiml.redirect(settings.xm_action + '?setting=' +  encodeURI(JSON.stringify(settings)));
+            
+            callback(null, twiml);
+            
+             
+        }
+        else {
 
-        callback(null, twiml);
-
-
-    } else {
-
-        const gather = twiml.gather({
-            input: 'dtmf',
-            numDigits: 1,
-            action: settings.xm_record + '?setting=' + encodeURI(JSON.stringify(settings))
-
-        });
-        gather.say({ voice: 'alice', loop: 1 }, 'Hey there, Whats the problem? Press 1 to alert an x matters group. Press 2 to start an x matters conference bridge.');
-        twiml.pause({ length: 1 });
-        twiml.redirect(settings.xm_action + '?setting=' + encodeURI(JSON.stringify(settings)));
-
-        callback(null, twiml);
-
-    }
+            const gather = twiml.gather({
+                  input: 'dtmf',
+                    numDigits: 1,
+                  action:  settings.xm_record  + '?setting=' +  encodeURI(JSON.stringify(settings))
+                 
+            });
+            gather.say({ voice: 'alice', loop: 1},'Hey there, Whats the problem? Press 1 to alert an x matters group. Press 2 to start an x matters conference bridge.'); 
+            twiml.pause({ length: 1 });
+            twiml.redirect(settings.xm_action + '?setting=' +  encodeURI(JSON.stringify(settings)));
+            
+            callback(null, twiml);
+            
+        }
 
 
 }; // close handler

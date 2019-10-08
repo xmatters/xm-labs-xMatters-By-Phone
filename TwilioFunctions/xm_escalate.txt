@@ -1,0 +1,47 @@
+var got = require('got');
+const request = require('request');  
+const util = require('util');  
+
+exports.handler = function(context, event, callback) {
+ 
+// Get Settings
+var settings = JSON.parse(decodeURI(event.setting));
+// Get targets
+var targets = JSON.parse(decodeURI(event.targets));
+
+console.log("EVENT: " + JSON.stringify(event));
+console.log("Settings: " + JSON.stringify(settings));
+console.log("event.DialCallStatus: " + event.DialCallStatus);
+console.log("event.DialCallDuration: " + event.DialCallDuration);
+
+let twiml = new Twilio.twiml.VoiceResponse();
+
+    var escalation =  parseInt(event.escalation,10) + 1;
+
+    if (event.DialCallStatus === 'no-answer' && targets.length > escalation){
+        console.log("Escalation to the next on call " + targets[escalation].fullName);
+        
+        // Tell user who we are about to call     
+        twiml.say({ voice: 'alice'}, "Calling the next on call " +  targets[escalation].fullName + "..., good luck!");    
+        // Make the call to primary on call
+        const dial = twiml.dial( {'callerId':settings.callerID,'timeout':12, 'action': settings.xm_escalate  + '?setting=' +  encodeURI(JSON.stringify(settings)) + '&targets=' + encodeURI(JSON.stringify(targets)) + "&escalation=" + escalation } );
+        dial.number(targets[escalation].voice);
+    	callback(null, twiml);
+        
+        
+    }
+    else if ( event.DialCallStatus === 'failed' && escalation === 1){
+      
+      twiml.say({ voice: 'alice'}, "There is no one with a voice device on call right now. You might want to try another group or a different type of alert."); 
+      twiml.redirect(settings.xm_action  + '?setting=' +  encodeURI(JSON.stringify(settings)) );
+      callback(null, twiml);
+        
+    }
+    else {
+     
+      twiml.say({ voice: 'alice'}, "It's all fun and games, then the Primary On call forgets to answer the phone... You might want to try another group or a different type of alert."); 
+      twiml.redirect(settings.xm_action  + '?setting=' +  encodeURI(JSON.stringify(settings)) );
+      callback(null, twiml);
+      
+    }
+};

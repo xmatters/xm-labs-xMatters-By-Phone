@@ -1,96 +1,98 @@
 var got = require('got');
-const request = require('request');
-const util = require('util');
+const request = require('request');  
+const util = require('util');  
 
 exports.handler = function(context, event, callback) {
-
-    // Get Settings
-    var settings = JSON.parse(decodeURI(event.setting));
-    console.log("EVENT: " + JSON.stringify(event));
-    console.log("Settings: " + JSON.stringify(settings));
-    console.log("EVENT DIGITS: " + event.Digits);
-
-    let twiml = new Twilio.twiml.VoiceResponse();
-
+ 
+// Get Settings
+var settings = JSON.parse(decodeURI(event.setting));
+console.log("EVENT: " + JSON.stringify(event));
+console.log("Settings: " + JSON.stringify(settings));
+console.log("EVENT DIGITS: " + event.Digits);
+  
+  let twiml = new Twilio.twiml.VoiceResponse();
+    
     // Group selection is correct move on to recording
-    if ((parseInt(event.Digits) <= settings.NumberofGroups && parseInt(event.Digits) !== 0) || (settings.NumberofGroups === 0 && event.Digits === "1" || event.Digits === "2")) {
-
-        // Add recipient Group to the event payload for later
-        // This deals with the case of targeting zero groups
-        // Recipients are defined in xMatters. We dont need to add any here
-        if (settings.NumberofGroups === 0) {
-            console.log("no groups notif");
-
-            if (event.Digits === "1") {
-                event.what = 'Alert';
-                event.recipient = '';
+     if (( parseInt(event.Digits) <= settings.NumberofGroups && parseInt(event.Digits) !== 0) || (settings.NumberofGroups === 0 && event.Digits === "1" || event.Digits === "2") ) {
+         
+            // Add recipient Group to the event payload for later
+            // This deals with the case of targeting zero groups
+            // Recipients are defined in xMatters. We dont need to add any here
+            if ( settings.NumberofGroups === 0) {
+               console.log("no groups notif");
+        
+               if (event.Digits === "1"){
+                  event.what = 'Alert';
+                  event.recipient = '';
+                }
+                
+               if (event.Digits === "2"){
+                  event.what = 'Conference';
+                  event.recipient = '';
+                }
+                
             }
-
-            if (event.Digits === "2") {
-                event.what = 'Conference';
-                event.recipient = '';
+            // This is for when there are more than 0 groups and user selects target group from phone.
+            else {    
+        
+               // Adds a Recipient element to the Event Object which will be passed to xMatters to target the appropriate group.
+               // the element in xMatters_Groups is one less than the digit recieved from user input.
+               var index = (parseInt(event.Digits)) - 1;
+               event.recipient = settings.xMatters_Groups[index];
+                  
             }
+    
+           
+              // Record User message
+              twiml.say({ voice: 'alice', loop: 1}, 'Record your message after the beep. Press 1 if you are happy with your recording, any other key to restart.');
+              twiml.record({ timeout: 0, transcribe: true, maxLength: 120, finishOnKey: '1234567890*#', action: settings.xm_confirmRec + '?setting=' +  encodeURI(JSON.stringify(settings)) + '&what=' + event.what + '&recipient=' + encodeURI(event.recipient) + '&Message_Phrase=' + encodeURI(event.Message_Phrase)});
+           
+              callback(null, twiml);
+            
+            
+     } 
 
-        }
-        // This is for when there are more than 0 groups and user selects target group from phone.
-        else {
-
-            // Adds a Recipient element to the Event Object which will be passed to xMatters to target the appropriate group.
-            // the element in xMatters_Groups is one less than the digit recieved from user input.
-            var index = (parseInt(event.Digits)) - 1;
-            event.recipient = settings.xMatters_Groups[index];
-
-        }
-
-
-        // Record User message
-        twiml.say({ voice: 'alice', loop: 1 }, 'Record your message after the beep. Press 1 if you are happy with your recording, any other key to restart.');
-        twiml.record({ timeout: 0, transcribe: true, maxLength: 120, finishOnKey: '1234567890*#', action: settings.xm_confirmRec + '?setting=' + encodeURI(JSON.stringify(settings)) + '&what=' + event.what + '&recipient=' + encodeURI(event.recipient) + '&Message_Phrase=' + encodeURI(event.Message_Phrase) });
-
-        callback(null, twiml);
-
-
-    }
     // If group selection incorrect repeat the step
     else {
-
-
-        if (settings.NumberofGroups !== 0) {
-
-            twiml.say({ voice: 'alice', loop: 1 }, 'Invalid Digit. Listen carefully.');
-
-            const gather = twiml.gather({
-                input: 'dtmf',
-                numDigits: 1,
-                action: settings.xm_record + '?setting=' + encodeURI(JSON.stringify(settings)) + '&what=' + event.what + '&Message_Phrase=' + encodeURI(event.Message_Phrase)
-            });
-            gather.say({ voice: 'alice', loop: 1 }, event.Message_Phrase + settings.Group_Speak_Text);
-            twiml.pause({ length: 1 });
-            twiml.redirect(settings.xm_record + '?setting=' + encodeURI(JSON.stringify(settings)) + '&Message_Phrase=' + encodeURI(Message_Phrase) + '&what=' + what + '&Digits=' + event.Digits);
-            callback(null, twiml);
-
-
-
-
-        } else {
-
-            twiml.say({ voice: 'alice', loop: 1 }, 'Invalid Digit. Listen carefully.');
-
-            const gather = twiml.gather({
-                input: 'dtmf',
-                numDigits: 1,
-                action: settings.xm_record + '?setting=' + encodeURI(JSON.stringify(settings))
-            });
-            gather.say({ voice: 'alice', loop: 1 }, 'Press 1 to alert an x matters group. Press 2 to start an x matters conference bridge.');
-            twiml.pause({ length: 1 });
-            twiml.redirect(settings.xm_record + '?setting=' + encodeURI(JSON.stringify(settings)) + '&Digits=' + event.Digits);
-            callback(null, twiml);
-
-        }
-
-
-
-    }
+        
+            
+            if (settings.NumberofGroups !== 0) {
+            
+               twiml.say({ voice: 'alice', loop: 1},'Invalid Digit. Listen carefully.');
+                
+                const gather = twiml.gather({
+                      input: 'dtmf',
+                        numDigits: 1,
+                      action: settings.xm_record + '?setting=' +  encodeURI(JSON.stringify(settings)) + '&what=' + event.what + '&Message_Phrase=' + encodeURI(event.Message_Phrase)
+                });
+                gather.say({ voice: 'alice', loop: 1}, event.Message_Phrase + settings.Group_Speak_Text); 
+                twiml.pause({ length: 1 });
+                twiml.redirect(settings.xm_record  + '?setting=' +  encodeURI(JSON.stringify(settings)) + '&Message_Phrase=' + encodeURI(Message_Phrase) + '&what=' + what + '&Digits=' + event.Digits);
+                callback(null, twiml);
+  
+               
+                
+                
+            }
+            else {
+                
+                  twiml.say({ voice: 'alice', loop: 1},'Invalid Digit. Listen carefully.');
+                
+                const gather = twiml.gather({
+                      input: 'dtmf',
+                        numDigits: 1,
+                      action: settings.xm_record + '?setting=' +  encodeURI(JSON.stringify(settings))
+                });
+                gather.say({ voice: 'alice', loop: 1}, 'Press 1 to alert an x matters group. Press 2 to start an x matters conference bridge.'); 
+                twiml.pause({ length: 1 });
+                twiml.redirect(settings.xm_record  + '?setting=' +  encodeURI(JSON.stringify(settings)) + '&Digits=' + event.Digits);
+                callback(null, twiml);
+                
+            }
+            
+    
+   
+    }   
 
 
 }; // close handler
