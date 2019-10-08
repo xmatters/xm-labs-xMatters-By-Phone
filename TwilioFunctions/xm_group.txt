@@ -16,7 +16,7 @@ console.log("Settings xm_livecall: " + settings.xm_livecall);
 
 let twiml = new Twilio.twiml.VoiceResponse();
     
-    
+// User selects 1 - Alert, 2 - Conference Bridge, 3 - Live Call
   if (event.Digits === "1" || event.Digits === "2" || event.Digits === "3") {
       
    
@@ -33,14 +33,14 @@ let twiml = new Twilio.twiml.VoiceResponse();
               what = 'Livecall';
             }
             console.log("what: " + what);
-        
-        
+            console.log("event.Digits: " + event.Digits);
+          
            //  Direct to livecall function
            if (what === "Livecall") {
                 const gather = twiml.gather({
                       input: 'dtmf',
                       numDigits: 1,
-                      action: settings.xm_livecall  + '?setting=' +  encodeURI(JSON.stringify(settings)) + '&Message_Phrase=' + encodeURI(Message_Phrase) + '&what=' + what
+                      action: settings.xm_livecall  + '?setting=' +  encodeURI(JSON.stringify(settings)) + '&Message_Phrase=' + encodeURI(Message_Phrase) + '&what=' + what + '&Digits=' + event.Digits
                 });
     
                 // repeats the message until a response is recieved
@@ -73,7 +73,7 @@ let twiml = new Twilio.twiml.VoiceResponse();
     else {
         
            twiml.say({ voice: 'alice', loop: 1},'Invalid Digit. Listen carefully.');
-            
+            console.log("PROBLEM");
             const gather = twiml.gather({
                   input: 'dtmf',
                   numDigits: 1,
