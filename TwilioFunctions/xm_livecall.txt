@@ -6,12 +6,14 @@ exports.handler = function(context, event, callback) {
 
     // Get Settings
     var settings = JSON.parse(decodeURI(event.setting));
-
+    console.log("EVENT DIGITS: " + event.Digits);
+    console.log("EVENT: " + JSON.stringify(event));
+    
     let twiml = new Twilio.twiml.VoiceResponse();
 
     // Group selection is correct move on to recording
-    if (( parseInt(event.Digits) <= settings.NumberofGroups && parseInt(event.Digits) !== 0) ) {
-     
+    if (( parseInt(event.Digits) <= parseInt(settings.NumberofGroups) && parseInt(event.Digits) !== 0) ) {
+        
 
     if (event.groupIndex === undefined) {
 
@@ -49,8 +51,9 @@ exports.handler = function(context, event, callback) {
 
         .then(function(response) {
 
+            console.log("Get Group " + JSON.stringify(response.statusCode) + JSON.stringify(response.body));
             response = response.body;
-            console.log("Get Group " + JSON.stringify(response.statusCode) + JSON.stringify(response));
+            
 
             // If groupIndex is undefined this is the first time looking for groups
             if (event.groupIndex === undefined) {
@@ -206,7 +209,7 @@ exports.handler = function(context, event, callback) {
 
                 if (targets[gi].type === "GROUP") {
                     console.log("Group Found at " + gi + " " + targets[gi].targetName);
-                    twiml.redirect(settings.xm_livecall + '?setting=' + encodeURI(JSON.stringify(settings)) + "&targets=" + encodeURI(JSON.stringify(targets)) + "&groupIndex=" + gi);
+                    twiml.redirect(settings.xm_livecall + '?setting=' + encodeURI(JSON.stringify(settings)) + "&targets=" + encodeURI(JSON.stringify(targets)) + '&Message_Phrase=' + encodeURI(event.Message_Phrase) + "&groupIndex=" + gi + "&Digits=" + event.Digits);
                     callback(null, twiml);
                     return "group";
                 }
@@ -385,19 +388,21 @@ exports.handler = function(context, event, callback) {
 }
     // If group selection incorrect repeat the step
     else {
- 
+        
+        if (event.groupIndex === undefined){
+    
            twiml.say({ voice: 'alice', loop: 1},'Invalid Digit. Listen carefully.');
-            
+
             const gather = twiml.gather({
                   input: 'dtmf',
                     numDigits: 1,
-                  action: settings.xm_livecall + '?setting=' +  encodeURI(JSON.stringify(settings)) + '&what=' + event.what + '&Message_Phrase=' + encodeURI(event.Message_Phrase)
+                   action: settings.xm_livecall + '?setting=' +  encodeURI(JSON.stringify(settings)) + '&Message_Phrase=' + encodeURI(event.Message_Phrase) + '&what=' + event.what + '&Digits=' + event.Digits
             });
             gather.say({ voice: 'alice', loop: 1}, event.Message_Phrase + settings.Group_Speak_Text); 
             twiml.pause({ length: 1 });
-            twiml.redirect(settings.xm_livecall  + '?setting=' +  encodeURI(JSON.stringify(settings)) + '&Message_Phrase=' + encodeURI(Message_Phrase) + '&what=' + what + '&Digits=' + event.Digits);
+            twiml.redirect(settings.xm_livecall  + '?setting=' +  encodeURI(JSON.stringify(settings)) + '&Message_Phrase=' + encodeURI(event.Message_Phrase) + '&what=' + event.what + '&Digits=' + event.Digits);
             callback(null, twiml);
-
+        }
     }   
 
 
