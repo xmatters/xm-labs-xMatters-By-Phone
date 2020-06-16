@@ -3,8 +3,12 @@
 This integration will help you to initiate xMatters notifications by calling a Phone number. It allows you to select the type of notification, the group you want to target and record a message over the phone that will be transcribed, URL shortened and sent as an xMatters notification.
 
 <kbd>
-  <img src="https://github.com/xmatters/xMatters-Labs/raw/master/media/disclaimer.png">
+<a href="https://support.xmatters.com/hc/en-us/community/topics">
+   <img src="https://github.com/xmatters/xMatters-Labs/raw/master/media/disclaimer.png">
+</a>
 </kbd>
+
+
 
 # Pre-Requisites
 
@@ -27,7 +31,7 @@ This integration will help you to initiate xMatters notifications by calling a P
   - [xm_shorten](TwilioFunctions/xm_shorten.txt)
   - [xm_message](TwilioFunctions/xm_message.txt)
 
-- [xMatters Initiate Event via Phone Call Communication Plan](xMattersPlan/InitiateEventviaPhoneCall.zip)
+- [xMatters Initiate Event via Phone Call Workflow](InitiateEventviaPhoneCall.zip)
 
 # How it works
 
@@ -41,7 +45,7 @@ This integration will help you to initiate xMatters notifications by calling a P
 - You can decide to send a regular xMatters Alert/Notification or an xMatters Conference Bridge.
 - You can connect directly to the primary on call for a group and your call will escalate to the next on call if the phone is not answered.
 - You can predefine up to 9 xMatters groups that can be target with your notification. You can select the group you would like to target using xMatters from phone prompts.
-- The content of the message must be configured in the xMatters communication plan.
+- The content of the message must be configured in the xMatters Workflow.
 
 ## Integration Function Workflow
 
@@ -195,18 +199,18 @@ The integration user name and password will be needed when configuring the Twili
 
 <br><br>
 
-## Import and Configure the xMatters Communication Plan
+## Import and Configure the xMatters Workflow
 
-The next step is to import the communication plan.
+The next step is to import the Workflow.
 
-To import the communication plan:
+To import the Workflow:
 
-1. In the target xMatters system, on the **Developer** tab, click **Import Plan**.
-2. Click **Browse**, and then locate the downloaded communication plan: [xMatters Initiate Event via Phone Call Communication Plan](xMattersPlan/InitiateEventviaPhoneCall.zip)
-3. Click **Import Plan**.
-4. Once the communication plan has been imported, click **Plan Disabled** to enable the plan.
+1. In the target xMatters system, navigate to the workflows page and click **Import**.
+2. Click **Browse**, and then locate the downloaded Workflow: [xMatters Initiate Event via Phone Call Workflow](InitiateEventviaPhoneCall.zip)
+3. Click **Import**.
+4. Once the Workflow has been imported, click **Disabled** to enable the workflow.
 5. In the **Edit** drop-down list, select **Access Permissions**.
-6. Add the **Twilio_API_User** or Make the Plan **Accessible by All**.
+6. Add the **Twilio_API_User** or Make the workflow **Accessible by All**.
 7. **Save Changes**.
 8. In the **Edit** drop-down list, select **Forms**.
 
@@ -223,7 +227,7 @@ Repeat steps 6 to 9 for **On-Call Resource Conference** form.
 
 ## Get the xMatters Inbound Integration Endpoints
 
-1. In the **Edit** drop down list on the _xMatters Initiate Event via Phone Call Communication Plan_ Click **Integration Builder**.
+1. In the **Edit** drop down list on the _xMatters Initiate Event via Phone Call Workflow_ Click **Integration Builder**.
 2. On the Integration Builder tab, expand the list of inbound integrations.
 3. Click on either **On-Call Alert** or **On-Call Conference**.
 4. Ensure **URL Authentication** is set.
@@ -459,8 +463,8 @@ setting.url_conf =
 
 | **Integration URLS** | [Get the xMatters Inbound Integration Endpoints](#get-the-xmatters-inbound-integration-endpoints) |
 | -------------------- | ------------------------------------------------------------------------------------------------- |
-| setting.url_alert    | The inbound integration endpoint ULR for the On-Call Alert Communication plan.                    |
-| setting.url_conf     | The inbound integration endpoint ULR for the On-Call Conference Communication plan.               |
+| setting.url_alert    | The inbound integration endpoint ULR for the On-Call Alert Workflow.                    |
+| setting.url_conf     | The inbound integration endpoint ULR for the On-Call Conference Workflow.               |
 
 <br><br>
 
