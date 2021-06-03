@@ -1,3 +1,9 @@
+# Replaced by [xMatters by Phone v2](https://github.com/m3steele/xm-labs-xMatters-By-Phone-v2)
+
+This version of xMatters by Phone will no longer be updated. It has been replaced by a new version.
+
+[xMatters by Phone v2](https://github.com/m3steele/xm-labs-xMatters-By-Phone-v2)
+
 # Initiate xMatters Event by Phone (AKA, Phone Initiation)
 
 This integration will help you to initiate xMatters notifications by calling a Phone number. It allows you to select the type of notification, the group you want to target and record a message over the phone that will be transcribed, URL shortened and sent as an xMatters notification.
@@ -22,7 +28,7 @@ This integration will help you to initiate xMatters notifications by calling a P
   - [xm_group](TwilioFunctions/xm_group.txt)
   - [xm_record](TwilioFunctions/xm_record.txt)
   - [xm_livecall](TwilioFunctions/xm_livecall.txt)
-  - [xm_escalate](TwilioFunctions/xm_escalate.txt) 
+  - [xm_escalate](TwilioFunctions/xm_escalate.txt)
   - [xm_confirmRec](TwilioFunctions/xm_confirmRec.txt)
   - [xm_shorten](TwilioFunctions/xm_shorten.txt)
   - [xm_message](TwilioFunctions/xm_message.txt)
@@ -48,25 +54,27 @@ This integration will help you to initiate xMatters notifications by calling a P
 1. User Calls Twilio Voice enabled phone number.
 
 2. Twilio Function **xm_settings** is initiated.
+
    - This file contains all the settings for the integration
    - Performs authentication based on the calling phone Caller ID.
    - Phones that block / hide the Caller ID will not be able to use this integrations.
 
 3. Twilio Function **xm_action** is initiated.
+
    - Prompts the user to:
-   
-      1. Create a regular xMatters Alert.   => Initiates **xm_group** function.
-      2. Create an xMatters Alert with a Conference Bridge.   => Initiates **xm_group** function.
-      3. Initate a live call with the primary on call for a group.   => Initiates **xm_livecall** function.
+
+     1. Create a regular xMatters Alert. => Initiates **xm_group** function.
+     2. Create an xMatters Alert with a Conference Bridge. => Initiates **xm_group** function.
+     3. Initate a live call with the primary on call for a group. => Initiates **xm_livecall** function.
 
    - This sets a variable so _xm_message_ will send the event to the proper xMatters Inbound Integration URL.
-   		a. **Alert** -> **On-Call Alert**
-   		b. **Conference Bridge** -> **On-Call Conference**
+     a. **Alert** -> **On-Call Alert**
+     b. **Conference Bridge** -> **On-Call Conference**
 
 ```
   Hey there, What's the problem?
-  Press 1 to alert an xMatters group. 
-  Press 2 to start an xMatters conference bridge. 
+  Press 1 to alert an xMatters group.
+  Press 2 to start an xMatters conference bridge.
   Press 3 to speak live with the primary on call.
 ```
 
@@ -97,19 +105,15 @@ Calling Admin Group, primary on call "John Smith", good luck with your problem.
 
 6. Twilio Function **xm_escalate** is initiated.
    - Handles escalations to the next on call if phone is not not answer within 17 seconds.
-   - An answering machine will stop the process and will result in not connecting with someone live. 
-   		- 17 seconds is typically short enough that voicemail will not answer. This setting can be changed.
-   		- The system add a 5 second buffer to the timeout setting provided. 12 seconds + 5 second buffer = 17 seconds.
-   	
-   	Line 27:  ... __'timeout':12__ ... 
-   	
+   - An answering machine will stop the process and will result in not connecting with someone live. - 17 seconds is typically short enough that voicemail will not answer. This setting can be changed. - The system add a 5 second buffer to the timeout setting provided. 12 seconds + 5 second buffer = 17 seconds.
+
+     Line 27: ... **'timeout':12** ...
 
 ```
 Calling the next on call, "Henry Stephens", good luck.
 Calling the next on call, "nth member", good luck.
 If no member answers the phone, caller is sent back to the xm_action.
 ```
-
 
 7. Twilio Function **xm_record** is initiated.
    - Prompts the user to record a message over the phone.
@@ -139,12 +143,13 @@ http:/bit.ly/2sjdsis2
 ```
 
 10. Twilio Function **xm_message** is initiated.
-   - Plays some fun messages while we are waiting for the recording transcription to complete.
-   - This function continuously loops checking the transcription status each time.
-   - The time this step takes to complete will vary depending on the length of the recorded message.
-   - When the transcription status changes to "completed" an API call to xMatters is made to initiate the new event.
-   - The user is notified if the event was successfully created in xMatters or if there was a problem injecting the event.
-   - Recordings / Transcriptions have a length limitation from 2 seconds up to 2 minutes.
+
+- Plays some fun messages while we are waiting for the recording transcription to complete.
+- This function continuously loops checking the transcription status each time.
+- The time this step takes to complete will vary depending on the length of the recorded message.
+- When the transcription status changes to "completed" an API call to xMatters is made to initiate the new event.
+- The user is notified if the event was successfully created in xMatters or if there was a problem injecting the event.
+- Recordings / Transcriptions have a length limitation from 2 seconds up to 2 minutes.
 
 **Wait Messages**
 
@@ -164,8 +169,8 @@ http:/bit.ly/2sjdsis2
 
 11. xMatters Inbound Integration Script.
 
-   - This script gets the xMatters recipients out of the payload.
-   - This script adds trascription text to xMatters properties "Description" and "Short Description".
+- This script gets the xMatters recipients out of the payload.
+- This script adds trascription text to xMatters properties "Description" and "Short Description".
 
 # Installation
 
@@ -267,10 +272,9 @@ You will need this URL for both **On-Call Alert** and **On-Call Conference**.
 
 2. Perform a Twilio phone number search.
 
-
-    <kbd>
-      <img src="/media/Phone-Search.png" width="550px">
-    </kbd>
+<kbd>
+  <img src="/media/Phone-Search.png" width="550px">
+</kbd>
 
 3. Make sure the number you select has Voice Capabilities and Buy Number.
 
@@ -346,7 +350,7 @@ Copy the Code below to Twilio Functions
 - [xm_group](TwilioFunctions/xm_group.txt)
 - [xm_record](TwilioFunctions/xm_record.txt)
 - [xm_livecall](TwilioFunctions/xm_livecall.txt)
-- [xm_escalate](TwilioFunctions/xm_escalate.txt) 
+- [xm_escalate](TwilioFunctions/xm_escalate.txt)
 - [xm_confirmRec](TwilioFunctions/xm_confirmRec.txt)
 - [xm_shorten](TwilioFunctions/xm_shorten.txt)
 - [xm_message](TwilioFunctions/xm_message.txt)
@@ -415,7 +419,6 @@ xm_pass = 'rest password';
 | xmatters                                  | The base URL of your xMatters environment. Example: https://company.xmatters.com |
 | xm_user                                   | The username of the xMatters Twilio_API_User                                     |
 | xm_pass                                   | The password of the xMatters Twilio_API_User                                     |
-
 
 ### Outgoing Caller ID
 
@@ -637,4 +640,3 @@ https://www.twilio.com/docs/runtime/functions/debugging
 
 \*Alternatively, you can check the Inbound Integration Activity Log in xMatters:
 https://help.xmatters.com/ondemand/xmodwelcome/integrationbuilder/create-inbound-updates.htm
-
